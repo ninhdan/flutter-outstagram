@@ -1,30 +1,33 @@
 import 'dart:convert';
 import 'package:instagram_flutter/models/post.dart';
+import 'package:instagram_flutter/models/post_create.dart';
 import 'package:http/http.dart' as http;
 import 'package:instagram_flutter/models/response/responsedata.dart';
+import 'package:instagram_flutter/utils/global.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../utils/const.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 
 class PostService {
-  Future<ResponseData> post(Post post) async {
-
+  Future<ResponseData> createPost(PostCreate post) async {
     ResponseData responsesData = ResponseData(message: '');
 
     List<String> fileNamesList = post.files;
-    String token =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU1OTUyNDMsInV1aWQiOiIxMWZmMTUwNC0yODU0LTQ5Y2EtODhlNi1iYzI5OGEwM2FjZWMifQ.OQu65DXJFD10bM9Hu46wS8AuJMtyf4Vwydzo-Nvqiak';
+    String? token = Global.user!.token;
+    print(token);
+
     List<String> acceptedTypes = [
       'image/jpeg',
       'image/png',
       'image/jpg',
+      'image/webp',
       'video/mp4'
     ];
     var request = http.MultipartRequest('POST', Uri.parse('$urlBase/posts'));
 
     for (var fileName in fileNamesList) {
       if (fileName.isNotEmpty) {
-        // Check if file type is accepted
         String? contentType = lookupMimeType(fileName);
         if (contentType != null && acceptedTypes.contains(contentType)) {
           request.files.add(
@@ -57,7 +60,7 @@ class PostService {
       var message = jsonData['message'];
       var data = jsonData['data'];
 
-      if(code == 201) {
+      if (code == 201) {
         responsesData.status = code;
         responsesData.message = message;
         responsesData.data = data;
@@ -70,5 +73,34 @@ class PostService {
     }
 
     return responsesData;
+  }
+
+  Future<List<Post>> getAllPostOfUser() async {
+    List<Post> posts = [];
+    String? token = Global.user?.token;
+    try {
+      final response = await http.get(
+        Uri.parse('$urlBase/posts'),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body)['data'];
+        for (var item in jsonData) {
+          posts.add(Post.fromJson(item));
+        }
+      } else {
+        print('Failed to load posts: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error: $e');
+      return [];
+    }
+  print(posts);
+    return posts;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:instagram_flutter/utils/global.dart';
 import 'package:instagram_flutter/views/individual_reels_screen.dart';
 import 'package:instagram_flutter/views/gallery_screen.dart';
 import 'package:instagram_flutter/views/images_video_screen.dart';
@@ -13,6 +14,8 @@ void main() {
 class ProfileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+
     return MaterialApp(
       title: 'Profile Screen',
       theme: ThemeData(
@@ -29,6 +32,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+
+  String username =  '';
+
+  @override
+  void initState() {
+    super.initState();
+    username = Global.user?.username ?? '';
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +55,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: Padding(
                 padding: const EdgeInsets.only(left: 10.0),
                 child: Text(
-                  "john.doe",
+                  // "john.doe",
+                  username,
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w700,
@@ -105,11 +119,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: Colors.black,
                       ),
                     ),
-                    Tab(
-                      icon: Image.asset(
-                        'assets/images/UserTuong.png',
-                        height: 30,
-                        width: 30,
+                    const Tab(
+                      icon: Icon(
+                        Icons.grid_on_sharp,
+                        color: Colors.black,
                       ),
                     ),
                     Tab(

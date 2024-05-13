@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:instagram_flutter/models/post.dart';
+import 'package:instagram_flutter/services/postservice.dart';
 import 'package:instagram_flutter/views/widgets/post_widget.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,6 +12,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late Future<List<Post>> _postListFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _postListFuture = _fetchPosts();
+  }
+
+  Future<List<Post>> _fetchPosts() async {
+    var result = await PostService().getAllPostOfUser();
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,15 +39,15 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(
-                right: 9.0), // Add left padding to the first button
+                right: 9.0),
             child: IconButton(
-              onPressed: () {},
+              onPressed: () async {},
               icon: Image.asset(
                 'assets/images/Like.png',
                 width: 30,
                 height: 44,
               ),
-              color: Color(0xFF2F2F2F),
+              color: const Color(0xFF2F2F2F),
             ),
           ),
           Padding(
@@ -48,17 +63,39 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
-        backgroundColor: Color(0xfffafafa),
+        backgroundColor: const Color(0xfffafafa),
       ),
       body: CustomScrollView(
         slivers: [
-          SliverList(
-              delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              return  PostWidget();
+          FutureBuilder<List<Post>>(
+            future: _postListFuture,
+            builder:
+                (BuildContext context, AsyncSnapshot<List<Post>> snapshot) {
+              if (snapshot != null) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  print("Loading posts...");
+                  return const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()));
+                } else if (snapshot.hasError) {
+                  print(snapshot.error);
+                  return SliverFillRemaining(
+                      child: Text('Error: ${snapshot.error}'));
+                } else {
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        return PostWidget(post: snapshot.data![index]);
+                      },
+                      childCount: snapshot.data!.length,
+                    ),
+                  );
+                }
+              } else {
+                return const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()));
+              }
             },
-            childCount: 1,
-          )),
+          ),
         ],
       ),
     );

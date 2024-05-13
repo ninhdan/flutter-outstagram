@@ -121,7 +121,7 @@ class _Navigations_ScreenState extends State<Navigations_Screen> {
           const ExplorScreen(),
           const AddScreen(),
           const ReelsScreen(),
-           ProfileScreen(),
+          ProfileScreen(),
         ],
       )
 

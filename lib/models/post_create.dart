@@ -1,8 +1,8 @@
-class Post {
+class PostCreate {
   String caption;
   List<String> files;
 
-  Post({
+  PostCreate({
     required this.caption,
     required this.files,
   });

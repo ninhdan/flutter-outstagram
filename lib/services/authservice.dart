@@ -32,10 +32,13 @@ class AuthService {
         body: jsonEncode(param),
       );
 
-
+      print(response.body);
       if (response.statusCode == 200) {
+        print(response.statusCode);
         final user = User.fromJson(jsonDecode(response.body)['data']);
+        print(user);
         userResponse.user = user;
+        print(userResponse.user);
         userResponse.status = jsonDecode(response.body)['code'];
       } else {
         userResponse.message = jsonDecode(response.body)['message'];

@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram_flutter/models/post.dart';
+import 'package:instagram_flutter/models/post_create.dart';
 import 'package:instagram_flutter/models/response/responsedata.dart';
 import 'package:instagram_flutter/services/postservice.dart';
 import 'package:instagram_flutter/utils/toast.dart';
+import 'package:video_player/video_player.dart';
 
 class AddPostTextScreen extends StatefulWidget {
   final List<File> files;
@@ -18,10 +21,15 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
   final caption = TextEditingController();
   final location = TextEditingController();
   bool islooding = false;
-  final Post post = Post(caption: '', files: []);
+  final PostCreate post = PostCreate(caption: '', files: []);
 
   void handleSharePost() async {
     post.caption = caption.text;
+
+    if(caption.text.length > 2000){
+      CustomToast.showToast('Caption is too long');
+      return;
+    }
 
     if (caption.text.isEmpty) {
       CustomToast.showToast('Caption is required');
@@ -29,13 +37,16 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
     }
     for (var file in widget.files) {
       post.files.add(file.path);
+      print(file);
     }
     setState(() {
       islooding = true;
     });
-    ResponseData result = await PostService().post(post);
 
-    if(result.status == 200){
+
+    ResponseData result = await PostService().createPost(post);
+
+    if (result.status == 200) {
       CustomToast.showToast(result.message);
     } else {
       CustomToast.showToast(result.message);
@@ -51,7 +62,7 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
@@ -130,34 +141,64 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
   }
 
   Widget Caption(TextEditingController controller) {
+    if (widget.files == null || widget.files.isEmpty) {
+      return Container(); // hoặc một widget khác để hiển thị khi không có files
+    }
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Stack(
-            children: [
-              Container(
-                width: 200.w,
-                height: 200.h,
-                decoration: BoxDecoration(
-                  color: Colors.amber,
-                  image: DecorationImage(
-                    image: FileImage(widget.files[0]),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              const Positioned(
-                bottom: 0,
-                right: 0,
-                child: Icon(
-                  Icons.camera_alt,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            ],
+          SizedBox(
+            height: 200.h,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.files.length,
+              itemBuilder: (context, index) {
+                final file = widget.files[index];
+                if (file.path.endsWith('.mp4') || file.path.endsWith('.mov')) {
+                  return Stack(
+                    children: [
+                      VideoWidget(file),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  return Stack(
+                    children: [
+                      Container(
+                        width: 200.w,
+                        height: 200.h,
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          image: DecorationImage(
+                            image: FileImage(file),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              },
+            ),
           ),
           SizedBox(height: 10.h),
           Row(
@@ -165,7 +206,7 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
               Expanded(
                 child: SizedBox(
                   width: 280.w,
-                  height: 60.h,
+                  height: 80.h,
                   child: TextField(
                     controller: controller,
                     decoration: const InputDecoration(
@@ -174,6 +215,9 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
                       border: InputBorder.none,
                     ),
                     style: const TextStyle(color: Colors.black),
+                    maxLength: 2000, // Set the maximum character length
+                    maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                    maxLines: 5,
                   ),
                 ),
               ),
@@ -189,7 +233,6 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
       ),
     );
   }
-
   Widget Location(TextEditingController controller) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -202,6 +245,68 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
             hintText: 'Add location',
             border: InputBorder.none,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class VideoWidget extends StatefulWidget {
+  final File file;
+
+  VideoWidget(this.file);
+
+  @override
+  _VideoWidgetState createState() => _VideoWidgetState();
+}
+
+class _VideoWidgetState extends State<VideoWidget> {
+  late VideoPlayerController _controller;
+  bool _isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.file != null) {
+      _controller = VideoPlayerController.file(widget.file)
+        ..initialize().then((_) {
+          setState(() {});
+        });
+      _controller.setLooping(true);
+      _controller.play();
+      _controller.addListener(() {
+        setState(() {
+          _isPlaying = _controller.value.isPlaying;
+        });
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  void _togglePlayPause() {
+    if (_isPlaying) {
+      _controller.pause();
+    } else {
+      _controller.play();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _togglePlayPause,
+      child: AspectRatio(
+        aspectRatio: 10 / 10,
+        child: Stack(
+          children: [
+            if (_controller != null && _controller.value.isInitialized)
+              VideoPlayer(_controller),
+          ],
         ),
       ),
     );

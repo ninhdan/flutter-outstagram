@@ -48,29 +48,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
       for (var asset in media) {
         if (asset.type == AssetType.video) {
           temp.add(VideoWidget(asset));
-        } else
-          temp.add(
-            FutureBuilder(
-              future: asset.thumbnailDataWithSize(ThumbnailSize(200, 200)),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done)
-                  return Container(
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Image.memory(
-                            snapshot.data!,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-
-                return Container();
-              },
-            ),
-          );
+        } else {
+          temp.add(ImageWidget(asset));
+        }
       }
       setState(() {
         _mediaList.addAll(temp);
@@ -107,10 +87,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Navigations_Screen()),
-                      (route) => false,
-                );
+                // Navigator.of(context).pushAndRemoveUntil(
+                //   MaterialPageRoute(
+                //       builder: (context) => const Navigations_Screen()),
+                //   (route) => false,
+                // );
               },
               child: const Icon(Icons.close, color: Colors.black, size: 30),
             ),
@@ -152,158 +133,151 @@ class _AddPostScreenState extends State<AddPostScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 375.h,
-                  child: GridView.builder(
-                    //shrinkWrap: true,
-                    //physics: NeverScrollableScrollPhysics(),
-                    itemCount: _mediaList.isEmpty ? _mediaList.length : 1,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 1,
-                      mainAxisSpacing: 1,
-                      crossAxisSpacing: 1,
-                    ),
-                    itemBuilder: (context, index) {
-                      if (_mediaList[indexx] is VideoWidget) {
-                        return _mediaList[indexx];
-                      } else {
-                        return _mediaList[indexx];
-                      }
-                    },
+          child: Column(
+            children: [
+              SizedBox(
+                height: 375.h,
+                child: GridView.builder(
+                  itemCount: _mediaList.isEmpty ? _mediaList.length : 1,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    mainAxisSpacing: 1,
+                    crossAxisSpacing: 1,
                   ),
+                  itemBuilder: (context, index) {
+                    if (_mediaList[indexx] is VideoWidget) {
+                      return _mediaList[indexx];
+                    } else {
+                      return _mediaList[indexx];
+                    }
+                  },
                 ),
-                Container(
-                  width: double.infinity,
-                  height: 40.h,
-                  color: Colors.white,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
+              ),
+              Container(
+                width: double.infinity,
+                height: 40.h,
+                color: Colors.white,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal:
+                              15.w),
+                      child: Text(
+                        'Recents',
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        toggleSelectionMode();
+                      },
+                      child: Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal:
-                                15.w), // Adjust horizontal padding as needed
-                        child: Text(
-                          'Recents',
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w600,
+                                15.w),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: isMultipleSelection
+                                ? Colors.blueAccent
+                                : const Color(
+                                    0xFF666666),
+                            borderRadius: BorderRadius.circular(
+                                20.0),
                           ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          toggleSelectionMode();
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal:
-                                  15.w), // Adjust horizontal padding as needed
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: isMultipleSelection
-                                  ? Colors.blueAccent
-                                  : Color(0xFF666666), // Set the desired color
-                              borderRadius: BorderRadius.circular(
-                                  20.0), // Adjust the radius to make the corners rounded
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(
-                                  8.0), // Adjust the inner padding if needed
-                              child: Icon(
-                                Icons.filter_none,
-                                size: 13.sp,
-                                color:
-                                    Colors.white, // Set the color of the icon
-                              ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(
+                                8.0),
+                            child: Icon(
+                              Icons.filter_none,
+                              size: 13.sp,
+                              color: Colors.white, // Set the color of the icon
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height - 375.h - 40.h,
-                  child: GridView.builder(
-                      shrinkWrap: true,
-                      itemCount: _mediaList.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                        mainAxisSpacing: 1,
-                        crossAxisSpacing: 2,
-                      ),
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.all(0),
-                          child: Stack(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    indexx = index;
-                                    _file = path[index];
-                                    if (selectedIndex != -1) {
-                                      selectedFiles.remove(path[selectedIndex]);
-                                    }
-                                    selectedIndex = index;
-                                    selectedFiles.add(path[index]);
-                                  });
-                                },
-                                child: _mediaList[index],
-                              ),
-                              Visibility(
-                                visible: isMultipleSelection,
-                                child: Positioned.fill(
-                                  child: Align(
-                                    alignment: Alignment.topRight,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (selectedFiles
-                                              .contains(path[index])) {
-                                            selectedFiles.remove(path[index]);
-                                          } else if (selectedFiles.length <
-                                              10) {
-                                            indexx = index;
-                                            selectedFiles.add(path[index]);
-                                          } else if ((selectedFiles.length +
-                                                  1) >
-                                              10) {
-                                            selectedFiles.remove(path[index]);
-                                          }
-                                        });
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: selectedFiles
-                                                    .contains(path[index])
-                                                ? Colors.blue
-                                                : Colors.transparent,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 1.5,
-                                            ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height - 375.h - 40.h,
+                child: GridView.builder(
+                    shrinkWrap: true,
+                    itemCount: _mediaList.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      mainAxisSpacing: 1,
+                      crossAxisSpacing: 2,
+                    ),
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(0),
+                        child: Stack(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  indexx = index;
+                                  _file = path[index];;
+                                  if (selectedIndex != -1) {
+                                    selectedFiles.remove(path[selectedIndex]);
+                                  }
+                                  selectedIndex = index;
+                                  selectedFiles.add(path[index]);
+                                });
+                              },
+                              child: _mediaList[index],
+                            ),
+                            Visibility(
+                              visible: isMultipleSelection,
+                              child: Positioned.fill(
+                                child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        if (selectedFiles
+                                            .contains(path[index])) {
+                                          selectedFiles.remove(path[index]);
+                                        } else if (selectedFiles.length < 10) {
+                                          indexx = index;
+                                          selectedFiles.add(path[index]);
+                                        } else if ((selectedFiles.length + 1) >
+                                            10) {
+                                          selectedFiles.remove(path[index]);
+                                        }
+                                      });
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: selectedFiles
+                                                  .contains(path[index])
+                                              ? Colors.blue
+                                              : Colors.transparent,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 1.5,
                                           ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Text(
-                                              "${selectedFiles.indexOf(path[index]) + 1}",
-                                              style: TextStyle(
-                                                color: selectedFiles
-                                                        .contains(path[index])
-                                                    ? Colors.white
-                                                    : Colors.transparent,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Text(
+                                            "${selectedFiles.indexOf(path[index]) + 1}",
+                                            style: TextStyle(
+                                              color: selectedFiles
+                                                      .contains(path[index])
+                                                  ? Colors.white
+                                                  : Colors.transparent,
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
@@ -312,16 +286,47 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        );
-                      }),
-                )
-              ],
-            ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+              )
+            ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class ImageWidget extends StatelessWidget {
+  final AssetEntity asset;
+
+  const ImageWidget(this.asset);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: asset.thumbnailDataWithSize(const ThumbnailSize(200, 200)),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return Container(
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Image.memory(
+                    snapshot.data!,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Container();
+      },
     );
   }
 }
@@ -343,6 +348,7 @@ class _VideoWidgetState extends State<VideoWidget>
   @override
   void initState() {
     super.initState();
+    _isControllerInitialized = false;
     _loadVideo();
   }
 
@@ -373,7 +379,6 @@ class _VideoWidgetState extends State<VideoWidget>
     super.dispose();
   }
 
-
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
@@ -381,52 +386,44 @@ class _VideoWidgetState extends State<VideoWidget>
     return "$twoDigitMinutes:$twoDigitSeconds";
   }
 
-  void _handleTap() {
-
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return GestureDetector(
-      onTap: _handleTap,
-      child: _isControllerInitialized
-          ? AspectRatio(
-        aspectRatio: 10 / 10,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: VideoPlayer(_controller),
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                margin: EdgeInsets.all(2),
-                padding:
-                EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
+
+    return _isControllerInitialized
+        ? AspectRatio(
+            aspectRatio: 10 / 10,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: VideoPlayer(_controller),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Khoảng cách giữa biểu tượng và thời lượng
-                    Text(
-                      videoDuration,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                    margin: EdgeInsets.all(2),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Khoảng cách giữa biểu tượng và thời lượng
+                        Text(
+                          videoDuration,
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      )
-          : Container(),
-    );
+          )
+        : Container();
   }
 
   @override

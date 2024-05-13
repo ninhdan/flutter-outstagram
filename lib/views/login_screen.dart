@@ -157,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 110.h,
                     ),
                     Center(
-                      child: Image.asset('images/instagramlogosplash.png'),
+                      child: Image.asset('assets/images/instagramlogosplash.png'),
                     ),
                     SizedBox(height: 90.h),
                     Textfield(username, Icons.email,

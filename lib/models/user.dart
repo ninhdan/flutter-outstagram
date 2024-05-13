@@ -46,7 +46,7 @@ class User {
       password: json['user']['password'],
       avatar: json['user']['avatar'],
       bio: json['user']['bio'],
-       role: json['user']['role'],
+      role: json['user']['role'],
       active: json['user']['active'],
       gender: json['user']['gender'],
       birthday: DateTime.parse(json['user']['birthday']),
