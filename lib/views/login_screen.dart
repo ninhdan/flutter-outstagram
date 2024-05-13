@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:instagram_flutter/models/response/responsedata.dart';
+import 'package:instagram_flutter/models/response/user_response.dart';
 import 'package:instagram_flutter/models/user_login.dart';
 import 'package:instagram_flutter/services/authService.dart';
 import 'package:instagram_flutter/utils/global.dart';
@@ -40,14 +42,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void handleLogin() async {
     setState(() {
-      // Kiểm tra xem người dùng đã nhập vào trường username hay không
       if (username.text.isEmpty) {
         loginUsernameClicked = true;
       } else {
         loginUsernameClicked = false;
       }
 
-      // Kiểm tra xem người dùng đã nhập vào trường password hay không
       if (password.text.isEmpty) {
         loginPasswordClicked = true;
       } else {
@@ -58,35 +58,41 @@ class _LoginScreenState extends State<LoginScreen> {
     _user.username = username.text;
     _user.password = password.text;
 
+    print(_user.username);
+    print(_user.password);
+
     if (!loginUsernameClicked && !loginPasswordClicked) {
-      ResponseData responseData = await AuthService().login(_user);
-      if (responseData.status == 200) {
-        //Global.user;
+      UserResponse userResponse = await AuthService().login(_user) ;
+
+      if (userResponse.status == 200) {
+        Global.user = userResponse.user;
         widget.onSignedIn();
         final SharedPreferences prefs = await _prefs;
-        final token = responseData.data;
+        final json = jsonEncode(userResponse.user!.toJson());
         final _counter =
-            prefs.setString('auth_token', token!).then((bool success) {
+            prefs.setString('user', json).then((bool success) {
           return 0;
         });
+
       } else {
+
         showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: Text('Login Error',
+              title: const Text('Login Error',
                   style: TextStyle(fontWeight: FontWeight.bold)),
-              content: Column(
+              content: const Column(
                 mainAxisSize: MainAxisSize
-                    .min, // Đảm bảo chiều cao của cột phù hợp với nội dung
+                    .min,
                 children: [
                   Divider(
-                    height: 1, // Độ dày của đường ngang
-                    thickness: 1, // Độ dày của đường ngang
+                    height: 1,
+                    thickness: 1,
                     color: Color(0xFFD4D9DF),
                   ),
                   SizedBox(
-                      height: 10), // Khoảng cách giữa đường ngang và nội dung
+                      height: 10),
                   Text(
                     'Username, Email, mobile phone or Password is incorrect, Please check again!',
                     style: TextStyle(
@@ -95,16 +101,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               actions: [
-                Divider(
-                  height: 1, // Độ dày của đường ngang
-                  thickness: 1, // Độ dày của đường ngang
+                const Divider(
+                  height: 1,
+                  thickness: 1,
                   color: Color(0xFFD4D9DF),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text(
+                  child: const Text(
                     'Cancel',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -131,14 +137,14 @@ class _LoginScreenState extends State<LoginScreen> {
             Container(
               width: double.infinity,
               height: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xFFFAF7F2), // Màu #FAF7F2 ở giữa
-                    Color(0xFFF2FBF6), // Màu #F2FBF6 ở dưới
-                    Color(0xFFEDF4FE), // Màu #EDF4FE ở trên
+                    Color(0xFFFAF7F2),
+                    Color(0xFFF2FBF6),
+                    Color(0xFFEDF4FE),
                   ],
                 ),
               ),
@@ -154,7 +160,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Image.asset('images/instagramlogosplash.png'),
                     ),
                     SizedBox(height: 90.h),
-                    Textfield(username, Icons.email, 'Username, email or mobile number', username_F),
+                    Textfield(username, Icons.email,
+                        'Username, email or mobile number', username_F),
                     SizedBox(height: 15.h),
                     passwordField(password, Icons.lock, 'Password', password_F,
                         _obscureTextPassword, _togglePasswordVisibility),
@@ -186,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
           width: double.infinity,
           height: 44.h,
           decoration: BoxDecoration(
-            color: Color(0xFF0165E2),
+            color: Color(0xFF0000F6),
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Text(
@@ -203,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget FacebookMeta() {
-    return Padding(
+    return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -258,16 +265,16 @@ class _LoginScreenState extends State<LoginScreen> {
           width: double.infinity,
           height: 44.h,
           decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Color(0xFF0165E2), width: 1.5),
+            color: Colors.transparent,
+            border: Border.all(color: const Color(0xFF0000F6), width: 1.3),
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Text(
             'Create new account',
             style: TextStyle(
-              color: Color(0xFF0165E2),
+              color: Color(0xFF0000F6),
               fontSize: 15.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -285,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
             'Forgot password?',
             style: TextStyle(
               fontSize: 14.sp,
-              color: Color(0xFF485458),
+              color: const Color(0xFF485458),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -295,21 +302,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool isPhoneNumber(String value) {
-    // Kiểm tra xem giá trị có phải là số không
     if (value.isEmpty) {
       return false;
     }
-    // Kiểm tra độ dài của chuỗi số điện thoại
     if (value.length < 10 || value.length > 12) {
       return false;
     }
-    // Kiểm tra xem giá trị có chứa ký tự khác số không
     if (!RegExp(
             r'^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$')
         .hasMatch(value)) {
       return false;
     }
-    // Nếu tất cả các điều kiện trên đều đúng, giá trị được xem là số điện thoại hợp lệ
     return true;
   }
 
@@ -317,18 +320,15 @@ class _LoginScreenState extends State<LoginScreen> {
     if (value.isEmpty) {
       return 'Please enter $type';
     }
-    // Kiểm tra kiểu dữ liệu email
     if (type == 'Email' && !EmailValidator.validate(value)) {
       return 'Please enter a valid email';
     }
-    // Kiểm tra kiểu dữ liệu số điện thoại
     if (type == 'Phone' && !isPhoneNumber(value)) {
       return 'Please enter a valid phone number';
     }
-    // Hoặc kiểm tra theo điều kiện khác
-    // Ví dụ: kiểm tra chiều dài của mật khẩu
-    if (type == 'Password' && value.length < 6) {
-      return 'Password must be at least 6 characters long';
+
+    if (type == 'Password' && value.length < 8) {
+      return 'Password must be at least 8 characters long';
     }
     return '';
   }
@@ -361,8 +361,6 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: type,
-                // prefixIcon: Icon(icon,
-                //     color: focusNode.hasFocus ? Colors.black : Colors.grey),
                 labelStyle: TextStyle(
                     fontSize: 15.sp, // Thiết lập kích thước của nhãn
                     fontWeight: FontWeight.w600, // Thiết lập độ dày của nhãn
@@ -390,7 +388,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(
                   fontSize: 11.sp,
                   color: Colors.red,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -440,8 +438,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.black45 // Màu của nhãn
                     ),
                 suffixIcon: IconButton(
-                  icon: Icon(
-                      obscureTextLocal ? Icons.visibility : Icons.visibility_off),
+                  icon: Icon(obscureTextLocal
+                      ? Icons.visibility
+                      : Icons.visibility_off),
                   onPressed: toggleVisibility,
                 ),
                 contentPadding:
@@ -457,16 +456,15 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-          if (loginPasswordClicked) // Conditionally display the validation message
+          if (loginPasswordClicked)
             Padding(
-              padding: EdgeInsets.only(
-                  left: 20.w, top: 5.h), // Adjust padding as needed
+              padding: EdgeInsets.only(left: 20.w, top: 5.h),
               child: Text(
                 ValidateInput(controller.text, hintText),
                 style: TextStyle(
                   fontSize: 11.sp,
                   color: Colors.red,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),

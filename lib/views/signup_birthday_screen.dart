@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instagram_flutter/models/response/responsedata.dart';
 import 'package:instagram_flutter/models/user_register.dart';
 import 'package:instagram_flutter/services/authService.dart';
@@ -17,33 +19,51 @@ class SignupBirthdayScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupBirthdayScreen> {
-  final birthday = TextEditingController();
+  final birthday = TextEditingController(
+      text: DateFormat('yyyy-MM-dd').format(DateTime.now()));
   FocusNode birthday_F = FocusNode();
+  String ageLabel = 'Birthday (0 years old)';
 
+  bool? isChecked = false;
   UserRegister _user = UserRegister(
       email: '',
       password: '',
       username: '',
       name: '',
       phone: '',
-      birthdate: DateTime.now());
+      birthday: DateTime.now());
+  DateTime convertDateFormat(String date) {
+    try {
+      DateFormat inputFormat = DateFormat("yyyy-MM-dd");
+      DateTime parsedDate = inputFormat.parse(date);
+
+      DateFormat outputFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+      String formattedDate = outputFormat.format(parsedDate);
+
+      DateTime result = DateTime.parse(formattedDate);
+      return result;
+    } catch (e) {
+      print("Error converting date: $e");
+      return DateTime.now(); // Return current date as fallback
+    }
+  }
 
   void HanldeRegister() async {
     _user.email = widget.userRegister.email;
     _user.username = widget.userRegister.username;
     _user.phone = widget.userRegister.phone;
     _user.name = widget.userRegister.name;
-    _user.birthdate = DateTime.parse(birthday.text);
+    _user.birthday = convertDateFormat(birthday.text);
     _user.password = widget.userRegister.password;
 
     ResponseData responseData = await AuthService().register(_user);
-    if (responseData.status == 200) {
-      //Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen(onSignedIn: (){}));
 
-      print(responseData.message);
+    if (responseData.status == 201) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => LoginScreen(onSignedIn: () {})));
     } else {
-      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(responseData.message)));
       print(responseData.message);
+      print(responseData.status);
     }
   }
 
@@ -72,34 +92,17 @@ class _SignupScreenState extends State<SignupBirthdayScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    SizedBox(
-                      width: 96.w,
-                      height: 30.h,
-                    ),
-                    Center(
-                      child: Image.asset('assets/images/instagramnamelogo.png',
-                          width: 160.w, height: 50.h),
-                    ),
-                    SizedBox(height: 25.h),
-                    Center(
-                      child: Text(
-                          'Sign up to see photos and videos \nfrom your friends.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            color: Colors.black45,
-                            fontWeight: FontWeight.bold,
-                          )),
-                    ),
+                    iconBackArrow(),
+                    Title(),
+                    SizedBox(height: 15.h),
+                    contentBirthday(),
+                    SizedBox(height: 30.h),
+                    Textfield(birthday, ageLabel, birthday_F),
                     SizedBox(height: 10.h),
-                    LoginFacebook(),
-                    SizedBox(height: 20.h),
-                    DividerOR(),
-                    SizedBox(height: 20.h),
-                    Textfield(birthday, 'Birthday', birthday_F),
-                    SizedBox(height: 20.h),
+                   agree(),
+                    SizedBox(height: 10.h),
                     Login(onTap: HanldeRegister),
-                    SizedBox(height: 150.h),
+                    SizedBox(height: 400.h),
                     Have(),
                   ],
                 ),
@@ -151,62 +154,6 @@ class _SignupScreenState extends State<SignupBirthdayScreen> {
     );
   }
 
-  Widget DividerOR() {
-    return Row(
-      children: [
-        Expanded(
-          child: Divider(
-            height: 1, // Độ dày của đường ngang
-            thickness: 1, // Độ dày của đường ngang
-            color: Color(0xFFD4D9DF),
-            indent: 20, // Khoảng cách từ lề trái
-            endIndent: 20, // Khoảng cách từ lề phải
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            'OR',
-            style: TextStyle(
-              fontSize: 15.sp,
-              color: Colors.black54,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Divider(
-            height: 1, // Độ dày của đường ngang
-            thickness: 1, // Độ dày của đường ngang
-            color: Color(0xFFD4D9DF),
-            indent: 20, // Khoảng cách từ lề trái
-            endIndent: 20, // Khoảng cách từ lề phải
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget LoginFacebook() {
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 15.w),
-        child: Container(
-          alignment: Alignment.center,
-          width: double.infinity,
-          height: 44.h,
-          decoration: BoxDecoration(
-            color: Color(0xFF0165E2),
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          child: Text('Login with Facebook',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-              )),
-        ));
-  }
-
   Widget Login({required VoidCallback onTap}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
@@ -217,7 +164,7 @@ class _SignupScreenState extends State<SignupBirthdayScreen> {
           width: double.infinity,
           height: 44.h,
           decoration: BoxDecoration(
-            color: Color(0xFF0165E2),
+            color: Color(0xFF0000F6),
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Text(
@@ -227,6 +174,94 @@ class _SignupScreenState extends State<SignupBirthdayScreen> {
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget Title() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        child: Text(
+          'What\'s your birthday?',
+          style: TextStyle(
+            fontSize: 23.sp,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget agree(){
+    return  Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Checkbox(
+            value: isChecked,
+            onChanged: (bool? value) {
+              setState(() {
+                isChecked = value ?? false;
+              });
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4), // Set the border radius to zero
+            ),
+            fillColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                if (states.contains(MaterialState.selected)) {
+                  return Color(0xFF0030EF); // Set the background color when the checkbox is selected
+                }
+                return Colors.transparent; // Set the background color when the checkbox is not selected
+              },
+            ),
+          ),
+          Text(
+            'I agree to outstagram\'s terms and policies',
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.normal,
+              color: Color(0xFF0030EF),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget iconBackArrow() {
+    return AppBar(
+      backgroundColor: Colors.transparent, // Make the app bar transparent
+      elevation: 0, // Remove shadow
+      leading: IconButton(
+        icon: Icon(FontAwesomeIcons.arrowLeft,
+            color: Colors.black87, size: 18), // FontAwesome icon
+        onPressed: () {
+          Navigator.of(context).pop(); // Navigate back
+        },
+        color: Colors.black, // Set icon color
+      ),
+    );
+  }
+
+  Widget contentBirthday() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          'Use your own birthday, even if this account is for a business, a pet, or something else. No one will see this unless you share it.',
+          textAlign: TextAlign.left, // Align the text to the left
+          style: TextStyle(
+            fontSize: 13.sp,
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -247,7 +282,7 @@ class _SignupScreenState extends State<SignupBirthdayScreen> {
           controller: controller,
           focusNode: focusNode,
           onTap: () {
-            _selectDate(context);
+            _selectDate(context, controller);
           },
           style: TextStyle(
             fontSize: 15.sp,
@@ -277,7 +312,8 @@ class _SignupScreenState extends State<SignupBirthdayScreen> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showRoundedDatePicker(
       context: context,
       theme: ThemeData(primarySwatch: Colors.blue),
@@ -295,12 +331,24 @@ class _SignupScreenState extends State<SignupBirthdayScreen> {
       lastDate: DateTime(DateTime.now().year + 1),
       height: 300,
     );
-    if (picked != null && picked != _user.birthdate)
+    if (picked != null) {
       setState(() {
-        _user.birthdate = picked;
-        print(_user.birthdate);
-        birthday.text = _user.birthdate.toString();
-        print(birthday.text);
+        final formattedDate = _getDisplayDate(picked); // Format the picked date
+        controller.text = formattedDate;
+        DateTime now = DateTime.now();
+        int age = now.year - picked.year;
+        if (now.month < picked.month ||
+            (now.month == picked.month && now.day < picked.day)) {
+          age--;
+        }
+
+        // Update the age label
+        ageLabel = 'Birthday ($age years old)';
       });
+    }
+  }
+
+  String _getDisplayDate(DateTime date) {
+    return DateFormat("yyyy-MM-dd").format(date);
   }
 }

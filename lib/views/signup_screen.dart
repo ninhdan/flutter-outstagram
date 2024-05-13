@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,36 +15,50 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-
-
   final email = TextEditingController();
   FocusNode email_F = FocusNode();
 
   final phone = TextEditingController();
   FocusNode phone_F = FocusNode();
 
-
   final username = TextEditingController();
   FocusNode username_F = FocusNode();
+  UserRegister _user = UserRegister(
+      email: '',
+      password: '',
+      username: '',
+      name: '',
+      phone: '',
+      birthday: DateTime.now());
 
+  bool nextClickedUsername = false;
+  bool nextClickedEmail = false;
+  bool nextClickedPhone = false;
 
-  UserRegister _user = UserRegister( email: '', password: '', username: '', name: '', phone: '', birthdate: DateTime.now());
+  void HanldeRegister() async {
+    bool isValid = ValidateInput(email.text, 'Email').isEmpty &&
+        ValidateInput(phone.text, 'Mobile Phone').isEmpty &&
+        ValidateInput(username.text, 'Username').isEmpty;
 
-
-  void HanldeRegister  () async {
-
-    _user.email = email.text;
-    _user.username = username.text;
-    _user.phone = phone.text;
-
-    Navigator.push(context, MaterialPageRoute(builder: (context) => SignupPasswordScreen(_user)));
-
-
+    if (isValid) {
+      _user.email = email.text;
+      _user.username = username.text;
+      _user.phone = phone.text;
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => SignupPasswordScreen(_user)));
+    } else {
+      setState(() {
+        nextClickedEmail = ValidateInput(email.text, 'Email').isNotEmpty;
+        nextClickedPhone = ValidateInput(phone.text, 'Mobile Phone').isNotEmpty;
+        nextClickedUsername = ValidateInput(username.text, 'Username').isNotEmpty;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
@@ -71,42 +86,54 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 30.h,
                     ),
                     Center(
-                      child: Image.asset('assets/images/instagramnamelogo.png',
-                          width: 160.w, height: 50.h),
+                      child: Image.asset(
+                        'assets/images/instagramnamelogo.png',
+                        width: 160.w,
+                        height: 50.h,
+                      ),
                     ),
                     SizedBox(height: 25.h),
                     Center(
                       child: Text(
-                          'Sign up to see photos and videos \nfrom your friends.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            color: Colors.black45,
-                            fontWeight: FontWeight.bold,
-                          )),
+                        'Sign up to see photos and videos \nfrom your friends.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          color: Colors.black45,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                     SizedBox(height: 10.h),
                     LoginFacebook(),
                     SizedBox(height: 20.h),
                     DividerOR(),
                     SizedBox(height: 20.h),
-                    Textfield(email, Icons.email, 'Email', email_F),
+                    TextfieldEmail(email, 'Email', email_F),
                     SizedBox(height: 15.h),
-                    Textfield(phone, Icons.person, 'Mobile Phone', phone_F),
+                    TextfieldPhone(phone, 'Mobile Phone', phone_F),
                     SizedBox(height: 15.h),
-                    Textfield(username, Icons.person, 'Username', username_F),
+                    TextfieldUsername(username, 'Username', username_F),
                     SizedBox(height: 20.h),
-                    SignUp(onTap: HanldeRegister),
-                    SizedBox(height: 220.h),
-                    Have(),
+                    Next(onTap: HanldeRegister),
                   ],
                 ),
+              ),
+            ),
+            Positioned(
+              bottom: 20,
+              left: 0,
+              right: 0,
+              child: Container(
+                alignment: Alignment.bottomCenter,
+                child: Have(),
               ),
             ),
           ],
         ),
       ),
     );
+
   }
 
   Widget Have() {
@@ -205,21 +232,33 @@ class _SignupScreenState extends State<SignupScreen> {
         ));
   }
 
-  Widget SignUp({required VoidCallback onTap}) {
+  Widget Next({required VoidCallback onTap}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: GestureDetector(
-        onTap: onTap,
+        onTap: () {
+          // Kiểm tra xem có thông báo lỗi nào hiển thị không
+          bool hasError = email_F.hasFocus &&
+                  ValidateInput(email.text, 'Email').isNotEmpty ||
+              phone_F.hasFocus &&
+                  ValidateInput(phone.text, 'Phone Mobile').isNotEmpty ||
+              username_F.hasFocus &&
+                  ValidateInput(username.text, 'Username').isNotEmpty;
+          // Nếu không có lỗi nào hiển thị, thực hiện hành động tiếp theo
+          if (!hasError) {
+            onTap();
+          }
+        },
         child: Container(
           alignment: Alignment.center,
           width: double.infinity,
           height: 44.h,
           decoration: BoxDecoration(
-            color: Color(0xFF0165E2),
+            color: Color(0xFF0000F6),
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Text(
-            'Sign Up',
+            'Next',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18.sp,
@@ -231,63 +270,227 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget Forgot() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
-      child: Text(
-        'Forgot your password?',
-        style: TextStyle(
-          fontSize: 13.sp,
-          color: Colors.blue,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
+  bool isPhoneNumber(String value) {
+    // Kiểm tra độ dài của chuỗi số điện thoại
+    if (value.length < 10 || value.length > 12) {
+      return false;
+    }
+    // Kiểm tra xem giá trị có chứa ký tự khác số không
+    if (!RegExp(
+            r'^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$')
+        .hasMatch(value)) {
+      return false;
+    }
+    // Nếu tất cả các điều kiện trên đều đúng, giá trị được xem là số điện thoại hợp lệ
+    return true;
   }
 
-  Widget Textfield(TextEditingController controller, IconData icon, String type,
-      FocusNode focusNode) {
+  String ValidateInput(String value, String type) {
+    if (value.isEmpty) {
+      return 'Please enter $type';
+    }
+    if (type == 'Email' && !EmailValidator.validate(value)) {
+      return 'Please enter a valid email';
+    }
+    if (type == 'Mobile Phone' && !isPhoneNumber(value)) {
+      return 'Please enter a valid phone number';
+    }
+
+    if (type == 'Username' && value.length < 6 && value.length < 21 ) {
+      return 'Username must be at least 6 characters';
+    }
+    return '';
+  }
+
+  Widget TextfieldEmail(
+      TextEditingController controller, String type, FocusNode focusNode) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Container(
-        height: 50.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(5.r),
-        ),
-        child: TextField(
-          controller: controller,
-          focusNode: focusNode,
-          style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 50.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5.r),
+            ),
+            child: TextField(
+              controller: controller,
+              focusNode: focusNode,
+              onChanged: (value) {
+                setState(() {
+                  nextClickedEmail = false;
+                });
+              },
+              style: TextStyle(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: type,
+                labelStyle: TextStyle(
+                    fontSize: 15.sp, // Thiết lập kích thước của nhãn
+                    fontWeight: FontWeight.w600, // Thiết lập độ dày của nhãn
+                    color: Colors.black45 // Màu của nhãn
+                    ),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Color(0xFFD4D9DF), width: 1.w),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.black45, width: 1.w),
+                ),
+              ),
+            ),
           ),
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: type,
-            labelStyle: TextStyle(
-                fontSize: 15.sp, // Thiết lập kích thước của nhãn
-                fontWeight: FontWeight.w600, // Thiết lập độ dày của nhãn
-                color: Colors.black45// Màu của nhãn
+          if (nextClickedEmail) // Conditionally display the validation message
+            Padding(
+              padding: EdgeInsets.only(
+                  left: 20.w, top: 5.h), // Adjust padding as needed
+              child: Text(
+                ValidateInput(controller.text, type),
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: Colors.red,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-            // prefixIcon: Icon(icon,
-            //     color: focusNode.hasFocus ? Colors.black : Colors.grey),
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Color(0xFFD4D9DF), width: 1.w),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Color(0xFF9FA7B6), width: 1.w),
-            ),
-          ),
-        ),
+        ],
       ),
     );
   }
 
+  Widget TextfieldUsername(
+      TextEditingController controller, String type, FocusNode focusNode) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 50.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5.r),
+            ),
+            child: TextField(
+              controller: controller,
+              focusNode: focusNode,
+              onChanged: (value) {
+                setState(() {
+                  nextClickedUsername = false;
+                });
+              },
+              style: TextStyle(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: type,
+                labelStyle: TextStyle(
+                    fontSize: 15.sp, // Thiết lập kích thước của nhãn
+                    fontWeight: FontWeight.w600, // Thiết lập độ dày của nhãn
+                    color: Colors.black45 // Màu của nhãn
+                    ),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Color(0xFFD4D9DF), width: 1.w),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.black45, width: 1.w),
+                ),
+              ),
+            ),
+          ),
+          if (nextClickedUsername) // Conditionally display the validation message
+            Padding(
+              padding: EdgeInsets.only(
+                  left: 20.w, top: 5.h), // Adjust padding as needed
+              child: Text(
+                ValidateInput(controller.text, type),
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: Colors.red,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 
-
+  Widget TextfieldPhone(
+      TextEditingController controller, String type, FocusNode focusNode) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 50.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5.r),
+            ),
+            child: TextField(
+              controller: controller,
+              focusNode: focusNode,
+              onChanged: (value) {
+                setState(() {
+                  nextClickedPhone = false;
+                });
+              },
+              style: TextStyle(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: type,
+                labelStyle: TextStyle(
+                    fontSize: 15.sp, // Thiết lập kích thước của nhãn
+                    fontWeight: FontWeight.w600, // Thiết lập độ dày của nhãn
+                    color: Colors.black45 // Màu của nhãn
+                    ),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Color(0xFFD4D9DF), width: 1.w),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.black45, width: 1.w),
+                ),
+              ),
+            ),
+          ),
+          if (nextClickedPhone)
+            Padding(
+              padding: EdgeInsets.only(
+                  left: 20.w, top: 5.h), // Adjust padding as needed
+              child: Text(
+                ValidateInput(controller.text, type),
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: Colors.red,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }

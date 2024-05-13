@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:instagram_flutter/views/add_posts_screen.dart';
+import 'package:instagram_flutter/views/add_screen.dart';
 import 'package:instagram_flutter/views/explor_screen.dart';
 import 'package:instagram_flutter/views/home.dart';
 import 'package:instagram_flutter/views/profile_screen.dart';
@@ -115,11 +117,11 @@ class _Navigations_ScreenState extends State<Navigations_Screen> {
         controller: pageController,
         onPageChanged: onPageChanged,
         children: [
-          HomeScreen(),
-          ExplorScreen(),
-          ReelsScreen(),
-          ProfileScreen(),
-          ProfileScreen(),
+          const HomeScreen(),
+          const ExplorScreen(),
+          const AddScreen(),
+          const ReelsScreen(),
+           ProfileScreen(),
         ],
       )
 

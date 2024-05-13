@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/utils/global.dart';
@@ -31,19 +33,19 @@ class _AuthPageState extends State<AuthPage> {
     });
 
    _prefs.then((SharedPreferences prefs) {
-      var token = prefs.getString('auth_token');
-      if (token == null) {
+      var json = prefs.getString('user');
+      if (json == null) {
         _updateAuthStatus(AuthStatus.notSignedIn);
-        //return null;
+        return null;
       }else{
         _updateAuthStatus(AuthStatus.signedIn);
       }
-      // Map<String, dynamic> userJson = jsonDecode(token);
-      // final tempUser = User.fromJson(userJson);
-      // Global.user = tempUser;
-      //
-      //
-      // return tempUser;
+      Map<String, dynamic> userJson = jsonDecode(json);
+      final tempUser = User.fromJson(userJson);
+      Global.user = tempUser;
+
+      _updateAuthStatus(AuthStatus.signedIn);
+      return tempUser;
     });
     super.initState();
   }

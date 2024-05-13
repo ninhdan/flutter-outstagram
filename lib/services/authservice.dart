@@ -1,21 +1,26 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:instagram_flutter/models/response/user_response.dart';
+import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/models/user_login.dart';
 import 'package:instagram_flutter/models/user_register.dart';
 import 'package:instagram_flutter/utils/const.dart';
-
 import '../models/response/responsedata.dart';
 
 class AuthService {
-  Future<ResponseData> login(UserLogin userLogin) async {
-    ResponseData responseData = ResponseData();
+  //AuthService();
+
+  Future<UserResponse> login(UserLogin userLogin) async {
+    UserResponse userResponse = UserResponse();
 
     Map<String, String> param = {
       'username': userLogin.username,
       'password': userLogin.password,
       'platform': 'Flutter',
     };
+
+    print(param);
 
     try {
       final url = Uri.parse('$urlBase/auth/login');
@@ -27,41 +32,24 @@ class AuthService {
         body: jsonEncode(param),
       );
 
+
       if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        int code = jsonData['code'];
-        String message = jsonData['message'];
-        dynamic data = jsonData['data'];
-
-        print('Code: $jsonData');
-
-        if (code == 200) {
-          String? authToken = data['token'];
-          if (authToken != null) {
-            responseData.status = 200;
-            responseData.message = message;
-            responseData.data = authToken;
-          } else {
-            // Handle missing token
-            responseData.message = 'Missing authentication token';
-          }
-        } else {
-          responseData.status = code;
-          responseData.message = message;
-        }
+        final user = User.fromJson(jsonDecode(response.body)['data']);
+        userResponse.user = user;
+        userResponse.status = jsonDecode(response.body)['code'];
       } else {
-        responseData.message = '${response.statusCode} ${response.body}';
+        userResponse.message = jsonDecode(response.body)['message'];
+        return userResponse;
       }
     } catch (e) {
-      print(e);
-      responseData.message = e.toString();
+      userResponse.message = e.toString();
     }
 
-    return responseData;
+    return userResponse;
   }
 
   Future<ResponseData> register(UserRegister userRegister) async {
-    ResponseData responseData = ResponseData();
+    ResponseData result = ResponseData(message: '');
 
     Map<String, String> param = {
       'username': userRegister.username,
@@ -69,7 +57,7 @@ class AuthService {
       'password': userRegister.password,
       'full_name': userRegister.name,
       'phone': userRegister.phone,
-      'birthdate': userRegister.birthdate.toIso8601String(),
+      'birthday': userRegister.birthday.toIso8601String(),
       'platform': 'Flutter',
     };
 
@@ -83,25 +71,26 @@ class AuthService {
         body: jsonEncode(param),
       );
 
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        int code = jsonData['code'];
-        String message = jsonData['message'];
-
-        if (code == 200) {
-          responseData.status = 200;
-          responseData.message = message;
+      final jsonData = jsonDecode(response.body);
+      int code = jsonData['code'];
+      String message = jsonData['message'];
+      dynamic data = jsonData['data'];
+      if (code == 201) {
+        String? authToken = data['token'];
+        if (authToken != null) {
+          result.status = 201;
+          result.message = message;
+          result.data = authToken;
         } else {
-          responseData.status = code;
-          responseData.message = message;
+          result.message = 'Missing authentication token';
         }
       } else {
-        responseData.message = '${response.statusCode} ${response.body}';
+        result.status = code;
+        result.message = message;
       }
     } catch (e) {
-      print(e);
-      responseData.message = e.toString();
+      result.message = e.toString();
     }
-    return responseData;
+    return result;
   }
 }

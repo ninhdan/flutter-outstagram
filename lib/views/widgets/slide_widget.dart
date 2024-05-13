@@ -33,10 +33,9 @@ class Slide extends StatelessWidget {
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: Column(
+                    title: const Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-
                         Center(
                           child: Text(
                             'Log out \n of your account?',
@@ -47,31 +46,22 @@ class Slide extends StatelessWidget {
                             ),
                           ),
                         ),
-
                         SizedBox(height: 15),
                         Divider(
                           height: 1, // Độ dày của đường ngang
                           thickness: 1, // Độ dày của đường ngang
                           color: Color(0xFFD4D9DF),
-
                         ),
                       ],
                     ),
-
-
-
                     content: GestureDetector(
                       onTap: () async {
                         final SharedPreferences prefs = await _prefs;
-                        //remove data
-                        final success = await prefs.remove('auth_token');
+                        final success = await prefs.remove('user');
                         Global.myStream!.signOut();
-                        //Global.cleanData();
                         Navigator.pop(context);
-
-                        //render login
                       },
-                      child: Text(
+                      child: const Text(
                         'Logout',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
@@ -82,7 +72,7 @@ class Slide extends StatelessWidget {
                       ),
                     ),
                     actions: <Widget>[
-                      Divider(
+                      const Divider(
                         height: 1, // Độ dày của đường ngang
                         thickness: 1, // Độ dày của đường ngang
                         color: Color(0xFFD4D9DF),
@@ -105,9 +95,7 @@ class Slide extends StatelessWidget {
                 },
               );
             },
-
-
-            child: ListTile(
+            child: const ListTile(
               leading: Icon(
                 FontAwesomeIcons.signOutAlt,
                 size: 25,

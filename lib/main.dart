@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final ThemeData customTheme = ThemeData(
-      fontFamily: 'SF Pro Text',
+      fontFamily: 'Roboto',
     );
 
     return MaterialApp(

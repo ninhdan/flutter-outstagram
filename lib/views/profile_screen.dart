@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:instagram_flutter/views/Individual_reels_screen.dart';
+import 'package:instagram_flutter/views/individual_reels_screen.dart';
 import 'package:instagram_flutter/views/gallery_screen.dart';
 import 'package:instagram_flutter/views/images_video_screen.dart';
 import 'package:instagram_flutter/views/widgets/profile_header_widget.dart';
@@ -56,14 +56,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 IconButton(
                   icon: Image.asset("assets/images/Add.png"),
                   onPressed: () {
-                    // Your onPressed functionality here
                     print("Add button pressed");
                   },
                   tooltip: "Add",
                 ),
                 Builder(
                   builder: (context) => IconButton(
-                    icon: Icon(FontAwesomeIcons.bars, color: Colors.black),
+                    icon: const Icon(FontAwesomeIcons.bars, color: Colors.black),
                     onPressed: () => Scaffold.of(context).openEndDrawer(),
                   ),
                 )
@@ -74,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         ),
       ),
-      endDrawer: Slide(), // Use Slide directly here
+      endDrawer: Slide(),
 
       body: DefaultTabController(
         length: 3,
@@ -100,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   indicatorWeight: 1,
                   indicatorColor: Colors.black,
                   tabs: [
-                    Tab(
+                    const Tab(
                       icon: Icon(
                         Icons.grid_on_sharp,
                         color: Colors.black,

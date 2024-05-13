@@ -6,7 +6,7 @@ class Global{
   static MyStream? myStream;
   static User? user;
 
-  // static void cleanData(){
-  //   user = null;
-  // }
+  static void cleanData(){
+    user = null;
+  }
 }
