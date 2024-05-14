@@ -1,46 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart';
+import 'package:instagram_flutter/models/post.dart';
+import 'package:instagram_flutter/models/user.dart';
+import 'package:instagram_flutter/services/postservice.dart';
 import 'package:instagram_flutter/utils/global.dart';
-import 'package:instagram_flutter/views/individual_reels_screen.dart';
-import 'package:instagram_flutter/views/gallery_screen.dart';
-import 'package:instagram_flutter/views/images_video_screen.dart';
+import 'package:instagram_flutter/views/Individual_reels_screen.dart';
+import 'package:instagram_flutter/views/widgets/gallery_screen.dart';
 import 'package:instagram_flutter/views/widgets/profile_header_widget.dart';
 import 'package:instagram_flutter/views/widgets/slide_widget.dart';
 
-void main() {
-  runApp(ProfileApp());
-}
-
-class ProfileApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-
-
-    return MaterialApp(
-      title: 'Profile Screen',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ProfileScreen(),
-    );
-  }
-}
-
 class ProfileScreen extends StatefulWidget {
+  late User user;
+  ProfileScreen({required this.user});
+
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
-  String username =  '';
+  late List<Post> posts = [];
+  late bool isCurrentUser = false;
 
   @override
   void initState() {
     super.initState();
-    username = Global.user?.username ?? '';
+    isCurrentUser = Global.user?.id == widget.user.id;
+    fetchPosts();
   }
 
+  Future<void> fetchPosts() async {
+    List<Post> fetchedPosts =
+        await PostService().getAllPostOfUser(widget.user.id);
+    setState(() {
+      posts = fetchedPosts;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,52 +47,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Container(
             child: AppBar(
               backgroundColor: Colors.white,
-              title: Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: Text(
-                  // "john.doe",
-                  username,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 26,
+              title: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10.0), // Điều chỉnh khoảng cách theo nhu cầu của bạn
+                    child: const Icon(
+                      Icons.lock_outline,
+                      color: Colors.black,
+                      size: 20,
+                    ),
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10.0),
+                    child: Text(
+                      isCurrentUser == true
+                          ? widget.user.username
+                          : "Your Profile",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 24,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               centerTitle: false,
               elevation: 0,
               actions: [
                 IconButton(
                   icon: Image.asset("assets/images/Add.png"),
-                  onPressed: () {
-                    print("Add button pressed");
-                  },
+                  onPressed: () {},
                   tooltip: "Add",
                 ),
                 Builder(
                   builder: (context) => IconButton(
-                    icon: const Icon(FontAwesomeIcons.bars, color: Colors.black),
+                    icon:
+                        const Icon(FontAwesomeIcons.bars, color: Colors.black),
                     onPressed: () => Scaffold.of(context).openEndDrawer(),
                   ),
-                )
+                ),
               ],
             ),
-
           ),
-
         ),
       ),
-      endDrawer: Slide(),
-
+      endDrawer: Slide(widget.user),
       body: DefaultTabController(
-        length: 3,
+        length: 2,
         child: NestedScrollView(
           headerSliverBuilder: (context, _) {
             return [
               SliverList(
                 delegate: SliverChildListDelegate(
                   [
-                    profileHeaderWidget(context),
+                    profileHeaderWidget(context, widget.user),
                   ],
                 ),
               ),
@@ -105,41 +109,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
           body: Column(
             children: <Widget>[
-              Material(
-                color: Colors.white,
-                child: TabBar(
-                  labelColor: Colors.black,
-                  unselectedLabelColor: Colors.grey[400],
-                  indicatorWeight: 1,
-                  indicatorColor: Colors.black,
-                  tabs: [
-                    const Tab(
-                      icon: Icon(
-                        Icons.grid_on_sharp,
-                        color: Colors.black,
-                      ),
+              //color: Colors.white,
+              TabBar.secondary(
+                unselectedLabelColor: Colors.grey,
+                labelColor: Colors.black,
+                indicatorColor: Colors.black,
+                tabs: [
+                  const Tab(
+                    icon: Icon(
+                      Icons.grid_view_rounded,
+                      size: 30,
                     ),
-                    const Tab(
-                      icon: Icon(
-                        Icons.grid_on_sharp,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Tab(
-                      icon: Image.asset(
-                        'assets/images/Reels.png',
-                        height: 25,
-                        width: 25,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  Builder(
+                    builder: (BuildContext context) {
+                      return const Tab(
+                        icon: Icon(
+                          FontAwesomeIcons.clapperboard,
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
               Expanded(
                 child: TabBarView(
                   children: [
-                    Gallery(),
-                    ImagesVideo(),
+                    Gallery(posts: posts, user: widget.user),
                     IndividualReels(),
                   ],
                 ),

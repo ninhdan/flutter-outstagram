@@ -1,11 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/utils/global.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Slide extends StatelessWidget {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  User user;
+  Slide(this.user);
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -15,14 +19,14 @@ class Slide extends StatelessWidget {
           UserAccountsDrawerHeader(
             decoration: BoxDecoration(color: const Color(0xfffff)),
             accountName: Text(
-              "Pinkesh Darji",
+              user.username,
               style:
                   TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
             ),
             accountEmail: Text(
-              "pinkesh.earth@gmail.com",
+              user.email,
               style:
-                  TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
+                  const TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
             ),
             currentAccountPicture:
                 Image.asset("assets/images/instagramlogosplash.png"),
@@ -48,8 +52,8 @@ class Slide extends StatelessWidget {
                         ),
                         SizedBox(height: 15),
                         Divider(
-                          height: 1, // Độ dày của đường ngang
-                          thickness: 1, // Độ dày của đường ngang
+                          height: 1,
+                          thickness: 1,
                           color: Color(0xFFD4D9DF),
                         ),
                       ],
@@ -73,8 +77,8 @@ class Slide extends StatelessWidget {
                     ),
                     actions: <Widget>[
                       const Divider(
-                        height: 1, // Độ dày của đường ngang
-                        thickness: 1, // Độ dày của đường ngang
+                        height: 1,
+                        thickness: 1,
                         color: Color(0xFFD4D9DF),
                       ),
                       Center(
@@ -99,14 +103,14 @@ class Slide extends StatelessWidget {
               leading: Icon(
                 FontAwesomeIcons.signOutAlt,
                 size: 25,
-                color: Color(0xFF0C92127), // Đặt màu cho biểu tượng
+                color: Color(0xFF0C92127),
               ),
               title: Text(
                 'Logout',
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 18,
-                  color: Color(0xFF0C92127), // Đặt màu cho văn bản
+                  color: Color(0xFF0C92127),
                 ),
               ),
             ),

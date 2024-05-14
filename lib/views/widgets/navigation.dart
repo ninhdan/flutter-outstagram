@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:instagram_flutter/models/user.dart';
+import 'package:instagram_flutter/utils/global.dart';
 import 'package:instagram_flutter/views/add_posts_screen.dart';
 import 'package:instagram_flutter/views/add_screen.dart';
 import 'package:instagram_flutter/views/explor_screen.dart';
 import 'package:instagram_flutter/views/home.dart';
 import 'package:instagram_flutter/views/profile_screen.dart';
 import 'package:instagram_flutter/views/reels_screen.dart';
+import 'package:instagram_flutter/views/widgets/profile_header_widget.dart';
 
 
 class Navigations_Screen extends StatefulWidget {
@@ -18,6 +21,11 @@ class Navigations_Screen extends StatefulWidget {
 int _currentIndex = 0;
 class _Navigations_ScreenState extends State<Navigations_Screen> {
   late PageController pageController;
+
+  User user = Global.user ?? User.empty();
+
+
+
   @override
   void initState(){
     super.initState();
@@ -121,7 +129,8 @@ class _Navigations_ScreenState extends State<Navigations_Screen> {
           const ExplorScreen(),
           const AddScreen(),
           const ReelsScreen(),
-          ProfileScreen(),
+          ProfileScreen(user: user),
+
         ],
       )
 

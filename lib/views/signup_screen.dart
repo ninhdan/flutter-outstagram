@@ -87,12 +87,12 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     Center(
                       child: Image.asset(
-                        'assets/images/instagramnamelogo.png',
-                        width: 160.w,
-                        height: 50.h,
+                        'assets/images/outstagram.png',
+                        width: 200.w,
+                        height: 70.h,
                       ),
                     ),
-                    SizedBox(height: 25.h),
+                    SizedBox(height: 15.h),
                     Center(
                       child: Text(
                         'Sign up to see photos and videos \nfrom your friends.',

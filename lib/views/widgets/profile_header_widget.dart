@@ -1,30 +1,44 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/utils/highlight.dart';
 
-Widget profileHeaderWidget(BuildContext context) {
+Widget profileHeaderWidget(BuildContext context, User user) {
   return Container(
     width: double.infinity,
-    decoration: BoxDecoration(color: Colors.white),
+    decoration: const BoxDecoration(color: Colors.white),
     child: Padding(
       padding: const EdgeInsets.only(left: 18.0, right: 18.0, bottom: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: Color(0xff74EDED),
-                backgroundImage:
-                NetworkImage("https://www.giantfreakinrobot.com/wp-content/uploads/2020/11/Pirates-of-the-Caribbean-6-Johnny-Depp-%E2%80%98UNLIKELY-to-return-as-Captain-Jack-Sparrow-lailasnews-1280x720-1.jpg"),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors
+                        .grey.shade500, // Adjust the color to your preference
+                    width: 3.5, // Adjust the width to your preference
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 38, // Adjust the radius to fit within the border
+                  backgroundColor: const Color(0xff74EDED),
+                  backgroundImage: NetworkImage(
+                    user.avatar.isEmpty
+                        ? 'https://instagram.fixc1-9.fna.fbcdn.net/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=instagram.fixc1-9.fna.fbcdn.net&_nc_cat=1&_nc_ohc=TokSSzUDPVcQ7kNvgGMF0u_&edm=AJ9x6zYBAAAA&ccb=7-5&ig_cache_key=YW5vbnltb3VzX3Byb2ZpbGVfcGlj.2-ccb7-5&oh=00_AYCetGx_2KnUphpAbrzv_kkxLPaX07mcXeJxPNOXkBSYIg&oe=6648F00F&_nc_sid=65462d'
+                        : user.avatar,
+                  ),
+                ),
               ),
-              Row(
+              const Row(
                 children: [
                   Column(
                     children: [
@@ -94,33 +108,34 @@ Widget profileHeaderWidget(BuildContext context) {
               )
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 8,
           ),
           Text(
-            "John Doe",
-            style: TextStyle(
+            user.full_name == '' ? "" : user.full_name,
+            style: const TextStyle(
               color: Colors.black87,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
               fontSize: 16,
               letterSpacing: 0.4,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 4,
           ),
           Text(
-            "Lorem Ipsum",
-            style: TextStyle(
+            user.bio == '' ? "" : user.bio,
+            style: const TextStyle(
               letterSpacing: 0.4,
+              fontSize: 14,
             ),
           ),
-          SizedBox(
-            height: 20,
+          const SizedBox(
+            height: 15,
           ),
           actions(context),
-          SizedBox(
-            height: 20,
+          const SizedBox(
+            height: 25,
           ),
           Container(
             height: 85,
@@ -140,7 +155,7 @@ Widget profileHeaderWidget(BuildContext context) {
                             padding: const EdgeInsets.all(2.0),
                             child: CircleAvatar(
                               backgroundImage:
-                              AssetImage(highlightItems[index].thumbnail),
+                                  AssetImage(highlightItems[index].thumbnail),
                               radius: 28,
                             ),
                           ),
@@ -149,12 +164,12 @@ Widget profileHeaderWidget(BuildContext context) {
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
                             highlightItems[index].title,
-                            style: TextStyle(fontSize: 13),
+                            style: const TextStyle(fontSize: 13),
                           ),
                         )
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     )
                   ],
@@ -174,18 +189,51 @@ Widget actions(BuildContext context) {
     children: [
       Expanded(
         child: OutlinedButton(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
-            child: Text("Edit Profile", style: TextStyle(color: Colors.black)),
-          ),
           style: OutlinedButton.styleFrom(
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              minimumSize: Size(0, 30),
-              side: BorderSide(
-                color: Colors.grey,
-
-              )),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            minimumSize: const Size(0, 35),
+            backgroundColor: Colors.grey[300],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(7),
+            ),
+            side: BorderSide.none,
+          ),
           onPressed: () {},
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 30),
+            child: Text(
+              "Edit Profile",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(width: 10),
+      Expanded(
+        child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            minimumSize: const Size(0, 35),
+            backgroundColor: Colors.grey[300],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(7),
+            ),
+            side: BorderSide.none,
+          ),
+          onPressed: () {},
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              "Share Profile",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
         ),
       ),
     ],

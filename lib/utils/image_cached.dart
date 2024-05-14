@@ -16,7 +16,7 @@ class CachedImage extends StatelessWidget {
       progressIndicatorBuilder: (context, url, progress) {
         return Container(
           child: Padding(
-            padding: EdgeInsets.all(130.h),
+            padding: EdgeInsets.all(100.h),
             child: SpinKitFadingCircle(
               // value: progress.progress,
               color: Colors.blueAccent,

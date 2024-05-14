@@ -75,12 +75,12 @@ class PostService {
     return responsesData;
   }
 
-  Future<List<Post>> getAllPostOfUser() async {
+  Future<List<Post>> getAllPostOfUser(String userId) async {
     List<Post> posts = [];
     String? token = Global.user?.token;
     try {
       final response = await http.get(
-        Uri.parse('$urlBase/posts'),
+        Uri.parse('$urlBase/posts/user/$userId'),
         headers: <String, String>{
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json; charset=UTF-8',
@@ -92,6 +92,7 @@ class PostService {
         for (var item in jsonData) {
           posts.add(Post.fromJson(item));
         }
+        return posts;
       } else {
         print('Failed to load posts: ${response.statusCode}');
         return [];
@@ -100,7 +101,69 @@ class PostService {
       print('Error: $e');
       return [];
     }
-  print(posts);
-    return posts;
+  }
+
+  Future<List<Post>> getAllPostsOfUserMe() async {
+    List<Post> posts = [];
+    String? token = Global.user?.token;
+    try {
+      final response = await http.get(
+        Uri.parse('$urlBase/posts/me'),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body)['data'];
+        for (var item in jsonData) {
+          posts.add(Post.fromJson(item));
+        }
+        return posts;
+      } else {
+        print('Failed to load posts: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error: $e');
+      return [];
+    }
+  }
+
+  Future<Post> getPostById(String postId) async {
+    String? token = Global.user?.token;
+    try {
+      final response = await http.get(
+        Uri.parse('$urlBase/posts/$postId'),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body)['data'];
+        return Post.fromJson(jsonData);
+      } else {
+        print('Failed to load post: ${response.statusCode}');
+        return Post(
+          id: '',
+          caption: '',
+          userId: '',
+          images: [],
+          createdAt: DateTime.now(),
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      return Post(
+        id: '',
+        caption: '',
+        userId: '',
+        images: [],
+        createdAt: DateTime.now(),
+      );
+    }
   }
 }

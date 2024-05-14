@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 class ImagePost {
   final String id;
   final String postId;

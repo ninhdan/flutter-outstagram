@@ -1,7 +1,7 @@
 class User {
   String id;
   String username;
-  String password;
+  //String password;
   String full_name;
   String phone;
   String email;
@@ -20,7 +20,7 @@ class User {
     required this.id,
     required this.full_name,
     required this.username,
-    required this.password,
+    //required this.password,
     required this.birthday,
     required this.createdAt,
     required this.updatedAt,
@@ -36,6 +36,27 @@ class User {
 
     });
 
+  factory User.empty() {
+    return User(
+      id: '',
+      full_name: '',
+      username: '',
+      //password: '',
+      birthday: DateTime.now(),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      role: false,
+      active: false,
+      gender: false,
+      phone: '',
+      email: '',
+      avatar: '',
+      bio: '',
+      token: '',
+    );
+  }
+
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['user']['id'],
@@ -43,7 +64,7 @@ class User {
       phone: json['user']['phone'],
       email: json['user']['email'],
       username: json['user']['username'],
-      password: json['user']['password'],
+      //password: json['user']['_'],
       avatar: json['user']['avatar'],
       bio: json['user']['bio'],
       role: json['user']['role'],
@@ -64,7 +85,7 @@ class User {
     'phone': phone,
     'email': email,
     'username': username,
-    'password': password,
+    //'_': password,
     'avatar': avatar,
     'bio': bio,
     'role': role,

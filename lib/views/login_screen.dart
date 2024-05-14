@@ -62,20 +62,17 @@ class _LoginScreenState extends State<LoginScreen> {
     print(_user.password);
 
     if (!loginUsernameClicked && !loginPasswordClicked) {
-      UserResponse userResponse = await AuthService().login(_user) ;
+      UserResponse userResponse = await AuthService().login(_user);
 
       if (userResponse.status == 200) {
         Global.user = userResponse.user;
         widget.onSignedIn();
         final SharedPreferences prefs = await _prefs;
         final json = jsonEncode(userResponse.user!.toJson());
-        final _counter =
-            prefs.setString('user', json).then((bool success) {
+        final _counter = prefs.setString('user', json).then((bool success) {
           return 0;
         });
-
       } else {
-
         showDialog(
           context: context,
           builder: (context) {
@@ -83,16 +80,14 @@ class _LoginScreenState extends State<LoginScreen> {
               title: const Text('Login Error',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               content: const Column(
-                mainAxisSize: MainAxisSize
-                    .min,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Divider(
                     height: 1,
                     thickness: 1,
                     color: Color(0xFFD4D9DF),
                   ),
-                  SizedBox(
-                      height: 10),
+                  SizedBox(height: 10),
                   Text(
                     'Username, Email, mobile phone or Password is incorrect, Please check again!',
                     style: TextStyle(
@@ -157,7 +152,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 110.h,
                     ),
                     Center(
-                      child: Image.asset('assets/images/instagramlogosplash.png'),
+                      child:
+                          Image.asset('assets/images/instagramlogosplash.png'),
                     ),
                     SizedBox(height: 90.h),
                     Textfield(username, Icons.email,

@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<Post>> _fetchPosts() async {
-    var result = await PostService().getAllPostOfUser();
+    var result = await PostService().getAllPostsOfUserMe();
     return result;
   }
 
@@ -32,9 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         elevation: 0,
         title: SizedBox(
-          width: 105.w,
+          width: 110.w,
           height: 44.h,
-          child: Image.asset('assets/images/logo.png'),
+          child: Image.asset('assets/images/outstagram.png'),
         ),
         actions: [
           Padding(
@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Padding(
             padding: const EdgeInsets.only(
-                right: 14.0), // Add left padding to the first button
+                right: 14.0),
             child: IconButton(
               onPressed: () {},
               icon: Image.asset(

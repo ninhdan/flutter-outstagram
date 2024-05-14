@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:instagram_flutter/models/post.dart';
 import 'package:instagram_flutter/utils/global.dart';
 import 'package:instagram_flutter/utils/image_cached.dart';
-import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class PostWidget extends StatefulWidget {
@@ -17,13 +16,14 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget> {
   String username = '';
+  String avatar = '';
   final _controller = PageController();
 
   @override
   void initState() {
     super.initState();
     username = Global.user?.username ?? '';
-
+    avatar = Global.user?.avatar ?? '';
   }
 
   String formatTime(DateTime? time) {
@@ -55,20 +55,30 @@ class _PostWidgetState extends State<PostWidget> {
       children: [
         Container(
           width: 375.w,
-          height: 54.h,
+          height: 70.h,
           color: Colors.white,
           child: Center(
               child: ListTile(
-            leading: ClipOval(
-              child: SizedBox(
-                width: 35.w,
-                height: 35.h,
-                child: Image.asset('assets/images/person.png'),
+            leading: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.grey.shade500,
+                  width: 1.5,
+                ),
+              ),
+              child: CircleAvatar(
+                radius: 15, // Adjust the radius as needed
+                backgroundImage: NetworkImage(
+                  avatar.isEmpty
+                      ? 'https://instagram.fixc1-9.fna.fbcdn.net/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=instagram.fixc1-9.fna.fbcdn.net&_nc_cat=1&_nc_ohc=TokSSzUDPVcQ7kNvgGMF0u_&edm=AJ9x6zYBAAAA&ccb=7-5&ig_cache_key=YW5vbnltb3VzX3Byb2ZpbGVfcGlj.2-ccb7-5&oh=00_AYCetGx_2KnUphpAbrzv_kkxLPaX07mcXeJxPNOXkBSYIg&oe=6648F00F&_nc_sid=65462d'
+                      : avatar,
+                ),
               ),
             ),
             title: Text(
               username,
-              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
             ),
             trailing:
                 const Icon(Icons.more_vert, color: Color(0xFF2F2F2F), size: 25),
@@ -95,29 +105,8 @@ class _PostWidgetState extends State<PostWidget> {
                 },
               ),
             ),
-            Container(
-              height: 40,
-              color: Colors.transparent,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SmoothPageIndicator(
-                   controller: _controller,
-                   count: widget.post.images.length,
-                    effect:  ScrollingDotsEffect(
-                        dotWidth:  6.0,
-                        dotHeight:  6.0,
-                        dotColor:  Colors.grey.withOpacity(0.6),
-                        activeDotColor:  Colors.blue,
-                    ),
-                  ),
-
-                ],
-              ),
-            ),
           ],
         ),
-
         Container(
           width: 375.w,
           color: Colors.white,
@@ -136,7 +125,21 @@ class _PostWidgetState extends State<PostWidget> {
                 Image.asset('assets/images/Comment.png', height: 25.h),
                 SizedBox(width: 15.w),
                 Image.asset('assets/images/Share.png', height: 25.h),
-                const Spacer(),
+                const Spacer(flex: 1),
+
+                if (widget.post.images.length > 1) // Kiểm tra số lượng ảnh
+                  SmoothPageIndicator(
+                    controller: _controller,
+                    count: widget.post.images.length,
+                    effect: ScrollingDotsEffect(
+                      dotWidth: 6.0,
+                      dotHeight: 6.0,
+                      dotColor: Colors.grey.withOpacity(0.6),
+                      activeDotColor: Colors.blue,
+                    ),
+                  ),
+                const Spacer(flex: 3,),
+
                 Padding(
                   padding: EdgeInsets.only(right: 15.w),
                   child:
@@ -145,7 +148,7 @@ class _PostWidgetState extends State<PostWidget> {
               ],
             ),
             Padding(
-              padding: EdgeInsets.only(left: 15.w, top: 13.5.h, bottom: 5.h),
+              padding: EdgeInsets.only(left: 15.w, top: 10.5.h, bottom: 5.h),
               child: Text(
                 'View by ninh nguyen and 10 others',
                 style: TextStyle(
@@ -161,7 +164,7 @@ class _PostWidgetState extends State<PostWidget> {
                   username + ' ',
                   style: TextStyle(
                     fontSize: 13.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
