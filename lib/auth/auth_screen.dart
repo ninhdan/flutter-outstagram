@@ -25,30 +25,29 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   void initState() {
-
-    Global.myStream!.counterStream.listen((event){
+    Global.myStream!.counterStream.listen((event) {
       if(event){
         _updateAuthStatus(AuthStatus.notSignedIn);
       }
     });
 
-   _prefs.then((SharedPreferences prefs) {
+    //read from local storages
+    final user = _prefs.then((SharedPreferences prefs) {
       var json = prefs.getString('user');
-      if (json == null) {
+      if(json == null){
         _updateAuthStatus(AuthStatus.notSignedIn);
         return null;
-      }else{
-        _updateAuthStatus(AuthStatus.signedIn);
       }
       Map<String, dynamic> userJson = jsonDecode(json);
-      final tempUser = User.fromJson(userJson);
+     final tempUser = User.formJsonMap(userJson);
       Global.user = tempUser;
-
       _updateAuthStatus(AuthStatus.signedIn);
+
       return tempUser;
     });
     super.initState();
   }
+
 
 
   void _updateAuthStatus(AuthStatus status) {

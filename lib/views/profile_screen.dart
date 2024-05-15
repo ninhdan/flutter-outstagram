@@ -6,7 +6,7 @@ import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/services/postservice.dart';
 import 'package:instagram_flutter/utils/global.dart';
 import 'package:instagram_flutter/views/Individual_reels_screen.dart';
-import 'package:instagram_flutter/views/widgets/gallery_screen.dart';
+import 'package:instagram_flutter/views/widgets/gallery.dart';
 import 'package:instagram_flutter/views/widgets/profile_header_widget.dart';
 import 'package:instagram_flutter/views/widgets/slide_widget.dart';
 
@@ -22,6 +22,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late List<Post> posts = [];
   late bool isCurrentUser = false;
 
+  int countPost = 0;
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await PostService().getAllPostOfUser(widget.user.id);
     setState(() {
       posts = fetchedPosts;
+      countPost = posts.length;
     });
   }
 
@@ -41,54 +44,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(44),
+        preferredSize: const Size.fromHeight(44),
         child: SizedBox(
           height: 100,
-          child: Container(
-            child: AppBar(
-              backgroundColor: Colors.white,
-              title: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10.0), // Điều chỉnh khoảng cách theo nhu cầu của bạn
-                    child: const Icon(
-                      Icons.lock_outline,
-                      color: Colors.black,
-                      size: 20,
-                    ),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            title: Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(right: 10.0),
+                  child: Icon(
+                    Icons.lock_outline,
+                    color: Colors.black,
+                    size: 20,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10.0),
-                    child: Text(
-                      isCurrentUser == true
-                          ? widget.user.username
-                          : "Your Profile",
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 24,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              centerTitle: false,
-              elevation: 0,
-              actions: [
-                IconButton(
-                  icon: Image.asset("assets/images/Add.png"),
-                  onPressed: () {},
-                  tooltip: "Add",
                 ),
-                Builder(
-                  builder: (context) => IconButton(
-                    icon:
-                        const Icon(FontAwesomeIcons.bars, color: Colors.black),
-                    onPressed: () => Scaffold.of(context).openEndDrawer(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 10.0),
+                  child: Text(
+                    isCurrentUser == true
+                        ? widget.user.username
+                        : "Your Profile",
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 24,
+                    ),
                   ),
                 ),
               ],
             ),
+            centerTitle: false,
+            elevation: 0,
+            actions: [
+              IconButton(
+                icon: Image.asset("assets/images/Add.png"),
+                onPressed: () {},
+                tooltip: "Add",
+              ),
+              Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(FontAwesomeIcons.bars, color: Colors.black),
+                  onPressed: () => Scaffold.of(context).openEndDrawer(),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -101,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SliverList(
                 delegate: SliverChildListDelegate(
                   [
-                    profileHeaderWidget(context, widget.user),
+                    profileHeaderWidget(context, widget.user, countPost),
                   ],
                 ),
               ),

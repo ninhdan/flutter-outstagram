@@ -21,7 +21,7 @@ class _PostScreenState extends State<PostScreen> {
   void initState() {
     super.initState();
     _postFuture = fetchPost(widget.postId);
-    _postsFuture = fetchPosts(); // Placeholder value
+    _postsFuture = fetchPosts();
   }
 
   Future<Post> fetchPost(String postId) async {
@@ -51,29 +51,6 @@ class _PostScreenState extends State<PostScreen> {
         ),
         backgroundColor: const Color(0xfffafafa),
       ),
-      // body: FutureBuilder<Post>(
-      //   future: _postFuture,
-      //   builder: (BuildContext context, AsyncSnapshot<Post> snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.waiting) {
-      //       return const Center(child: CircularProgressIndicator());
-      //     } else if (snapshot.hasError) {
-      //       return Center(child: Text('Error: ${snapshot.error}'));
-      //     } else {
-      //       return CustomScrollView(
-      //         slivers: [
-      //           SliverList(
-      //             delegate: SliverChildBuilderDelegate(
-      //                   (BuildContext context, int index) {
-      //                 return PostWidget(post: snapshot.data!);
-      //               },
-      //               childCount: 1,
-      //             ),
-      //           ),
-      //         ],
-      //       );
-      //     }
-      //   },
-      // ),
       body: FutureBuilder(
         future: Future.wait([_postFuture, _postsFuture]),
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {

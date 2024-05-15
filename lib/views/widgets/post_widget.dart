@@ -1,8 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instagram_flutter/models/post.dart';
+import 'package:instagram_flutter/services/postservice.dart';
 import 'package:instagram_flutter/utils/global.dart';
 import 'package:instagram_flutter/utils/image_cached.dart';
+import 'package:instagram_flutter/views/widgets/like_animation.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class PostWidget extends StatefulWidget {
@@ -15,9 +20,14 @@ class PostWidget extends StatefulWidget {
 }
 
 class _PostWidgetState extends State<PostWidget> {
+  @override
+  bool isAnimating = false;
+  bool isPostLiked = false;
   String username = '';
   String avatar = '';
   final _controller = PageController();
+  bool showFullCaption = false;
+
 
   @override
   void initState() {
@@ -49,7 +59,6 @@ class _PostWidgetState extends State<PostWidget> {
     }
   }
 
-  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -84,28 +93,65 @@ class _PostWidgetState extends State<PostWidget> {
                 const Icon(Icons.more_vert, color: Color(0xFF2F2F2F), size: 25),
           )),
         ),
-        Column(
-          children: [
-            SizedBox(
-              height: 375.h,
-              child: PageView.builder(
-                controller: _controller,
-                scrollDirection: Axis.horizontal,
-                itemCount: widget.post.images.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    width: 375.w,
-                    height: 375.h,
-                    color: Colors.white,
-                    child: CachedImage(
-                      widget.post.images[index].url,
-                      // fit: BoxFit.cover,
-                    ),
-                  );
-                },
+        GestureDetector(
+          onDoubleTap: () async {
+            setState(() {
+              isAnimating = true;
+            });
+
+            isPostLiked = widget.post.likes.any((like) => like.isLiked);
+            if(!isPostLiked){
+              final success = await PostService().likePost(widget.post.id);
+              if (success) {
+                print('CheckisAnimating1: ${isAnimating}');
+                setState(() {
+                  isAnimating = true;
+                  isPostLiked = true;
+                });
+              }
+            }
+          },
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 375.h,
+                child: PageView.builder(
+                  controller: _controller,
+                  scrollDirection: Axis.horizontal,
+                  itemCount: widget.post.images.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Container(
+                      width: 375.w,
+                      height: 375.h,
+                      color: Colors.white,
+                      child: CachedImage(
+                        widget.post.images[index].url,
+                        //fit: BoxFit.cover,
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: isAnimating ? 1 : 0,
+                child: LikeAnimation(
+                  isAnimating: isAnimating,
+                  duration: Duration(milliseconds: 400),
+                  iconlike: false,
+                  End: () {
+                    setState(() {
+                      isAnimating = false;
+                      print('CheckisAnimating2: ${isAnimating}');
+                    });
+                  },
+                  child: Icon(FontAwesomeIcons.solidHeart,
+                      size: 100.w, color: Colors.white),
+                ),
+              )
+            ],
+          ),
         ),
         Container(
           width: 375.w,
@@ -116,18 +162,42 @@ class _PostWidgetState extends State<PostWidget> {
             Row(
               children: [
                 SizedBox(width: 14.w),
-                Icon(
-                  Icons.favorite_outline,
-                  size: 25.w,
-                  color: const Color(0xFF2F2F2F),
+                LikeAnimation(
+                  isAnimating:  isAnimating,
+                  child: IconButton(
+                    onPressed: () async {
+
+                      setState(() {
+                        isAnimating = true;
+                      });
+
+
+                      // final success =
+                      //     await PostService().likePost(widget.post.id);
+                      // if (success) {
+                      //   print('CheckisAnimating3: ${isAnimating}');
+                      //   setState(() {
+                      //     isAnimating = true;
+                      //   });
+                      // }
+                    },
+                    icon: Icon(
+                      widget.post.likes.any((like) => like.isLiked)
+                          ? FontAwesomeIcons.solidHeart
+                          : FontAwesomeIcons.heart,
+                      size: 25.w,
+                      color: widget.post.likes.any((like) => like.isLiked)
+                          ? Colors.red
+                          : const Color(0xFF2F2F2F),
+                    ),
+                  ),
                 ),
                 SizedBox(width: 15.w),
                 Image.asset('assets/images/Comment.png', height: 25.h),
                 SizedBox(width: 15.w),
                 Image.asset('assets/images/Share.png', height: 25.h),
                 const Spacer(flex: 1),
-
-                if (widget.post.images.length > 1) // Kiểm tra số lượng ảnh
+                if (widget.post.images.length > 1)
                   SmoothPageIndicator(
                     controller: _controller,
                     count: widget.post.images.length,
@@ -138,8 +208,9 @@ class _PostWidgetState extends State<PostWidget> {
                       activeDotColor: Colors.blue,
                     ),
                   ),
-                const Spacer(flex: 3,),
-
+                const Spacer(
+                  flex: 3,
+                ),
                 Padding(
                   padding: EdgeInsets.only(right: 15.w),
                   child:
@@ -150,42 +221,80 @@ class _PostWidgetState extends State<PostWidget> {
             Padding(
               padding: EdgeInsets.only(left: 15.w, top: 10.5.h, bottom: 5.h),
               child: Text(
-                'View by ninh nguyen and 10 others',
+                '${widget.post.likes.where((like) => like.isLiked).length} likes',
                 style: TextStyle(
                   fontSize: 13.sp,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 15.w),
-              child: Row(children: [
+              child:
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(
-                  username + ' ',
+                  '$username ',
                   style: TextStyle(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  '${widget.post?.createdAt != null ? formatTime(widget.post!.createdAt) + ' ' : ''}',
+                  widget.post?.createdAt != null
+                      ? '${formatTime(widget.post!.createdAt)} '
+                      : '',
                   style: TextStyle(
                     fontSize: 13.sp,
                     color: Colors.grey,
                   ),
                 ),
-                const Icon(
-                  Icons.brightness_1,
-                  size: 6, // Điều chỉnh kích thước của biểu tượng
-                  color: Colors.grey,
-                ),
-                Text(
-                  ''
-                  ' ${widget.post?.caption != null ? widget.post!.caption + ' ' : ' '}',
-                  style: TextStyle(
-                    fontSize: 13.sp,
+                const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Icon(
+                    Icons.brightness_1,
+                    size: 6,
+                    color: Colors.grey,
                   ),
                 ),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showFullCaption = !showFullCaption;
+                      });
+                    },
+                    child: Text(
+                      showFullCaption
+                          ? widget.post?.caption ?? ''
+                          : ((widget.post?.caption ?? '').length > 100
+                              ? (widget.post?.caption ?? '').substring(0, 100)
+                              : widget.post?.caption ?? ''),
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: showFullCaption
+                          ? 100
+                          : 1, // Số dòng tối đa hiển thị khi chưa mở rộng
+                    ),
+                  ),
+                ),
+                if ((widget.post?.caption ?? '').length > 100)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showFullCaption = !showFullCaption;
+                      });
+                    },
+                    child: Text(
+                      showFullCaption ? ' Less' : 'More',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 13.sp,
+                      ),
+                    ),
+                  ),
               ]),
             ),
           ]),

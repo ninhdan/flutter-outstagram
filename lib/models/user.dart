@@ -58,26 +58,47 @@ class User {
 
 
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['user']['id'],
-      full_name: json['user']['full_name'],
-      phone: json['user']['phone'],
-      email: json['user']['email'],
-      username: json['user']['username'],
-      //password: json['user']['_'],
-      avatar: json['user']['avatar'],
-      bio: json['user']['bio'],
-      role: json['user']['role'],
-      active: json['user']['active'],
-      gender: json['user']['gender'],
-      birthday: DateTime.parse(json['user']['birthday']),
-      createdAt: DateTime.parse(json['user']['created_at']),
-      updatedAt: DateTime.parse(json['user']['updated_at']),
-      //delectedAt: DateTime.parse(json['deleted_at']),
-      token: json['token'],
 
-    );
+      return User(
+        id: json['user']['id'],
+        full_name: json['user']['full_name'],
+        phone: json['user']['phone'],
+        email: json['user']['email'],
+        username: json['user']['username'],
+        avatar: json['user']['avatar'],
+        bio: json['user']['bio'],
+        role: json['user']['role'],
+        active: json['user']['active'],
+        gender: json['user']['gender'],
+        birthday: DateTime.parse(json['user']['birthday']),
+        createdAt: DateTime.parse(json['user']['created_at']),
+        updatedAt: DateTime.parse(json['user']['updated_at']),
+        token: json['token'],
+      );
+
+
   }
+
+
+  factory User.formJsonMap(Map<String, dynamic> json) {
+      return User(
+        id: json['id'],
+        full_name: json['full_name'],
+        phone: json['phone'],
+        email: json['email'],
+        username: json['username'],
+        avatar: json['avatar'],
+        bio: json['bio'],
+        role: json['role'],
+        active: json['active'],
+        gender: json['gender'],
+        birthday: DateTime.parse(json['birthday']),
+        createdAt: DateTime.parse(json['created_at']),
+        updatedAt: DateTime.parse(json['updated_at']),
+        token: json['token'],
+      );
+  }
+
 
   Map<String, dynamic>toJson()=>{
     'id': id,

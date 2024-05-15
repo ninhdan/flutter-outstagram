@@ -58,8 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _user.username = username.text;
     _user.password = password.text;
 
-    print(_user.username);
-    print(_user.password);
 
     if (!loginUsernameClicked && !loginPasswordClicked) {
       UserResponse userResponse = await AuthService().login(_user);
@@ -72,6 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final _counter = prefs.setString('user', json).then((bool success) {
           return 0;
         });
+
       } else {
         showDialog(
           context: context,

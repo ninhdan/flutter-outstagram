@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/utils/highlight.dart';
 
-Widget profileHeaderWidget(BuildContext context, User user) {
+Widget profileHeaderWidget(BuildContext context, User user, int countPosts) {
   return Container(
     width: double.infinity,
     decoration: const BoxDecoration(color: Colors.white),
@@ -38,12 +38,12 @@ Widget profileHeaderWidget(BuildContext context, User user) {
                   ),
                 ),
               ),
-              const Row(
+               Row(
                 children: [
                   Column(
                     children: [
                       Text(
-                        "23",
+                        countPosts.toString(),
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,

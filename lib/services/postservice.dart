@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:instagram_flutter/models/post.dart';
 import 'package:instagram_flutter/models/post_create.dart';
@@ -14,8 +15,7 @@ class PostService {
     ResponseData responsesData = ResponseData(message: '');
 
     List<String> fileNamesList = post.files;
-    String? token = Global.user!.token;
-    print(token);
+    String token = Global.user!.token;
 
     List<String> acceptedTypes = [
       'image/jpeg',
@@ -77,7 +77,7 @@ class PostService {
 
   Future<List<Post>> getAllPostOfUser(String userId) async {
     List<Post> posts = [];
-    String? token = Global.user?.token;
+    String token = Global.user!.token;
     try {
       final response = await http.get(
         Uri.parse('$urlBase/posts/user/$userId'),
@@ -99,13 +99,14 @@ class PostService {
       }
     } catch (e) {
       print('Error: $e');
+      print('Failed to load posts check 1: $e');
       return [];
     }
   }
-
+  StreamController<List<Post>> _postStreamController = StreamController<List<Post>>();
   Future<List<Post>> getAllPostsOfUserMe() async {
     List<Post> posts = [];
-    String? token = Global.user?.token;
+    String token = Global.user!.token;
     try {
       final response = await http.get(
         Uri.parse('$urlBase/posts/me'),
@@ -127,12 +128,13 @@ class PostService {
       }
     } catch (e) {
       print('Error: $e');
+      print('Failed to load posts check 2: $e');
       return [];
     }
   }
 
   Future<Post> getPostById(String postId) async {
-    String? token = Global.user?.token;
+    String token = Global.user!.token;
     try {
       final response = await http.get(
         Uri.parse('$urlBase/posts/$postId'),
@@ -147,23 +149,32 @@ class PostService {
         return Post.fromJson(jsonData);
       } else {
         print('Failed to load post: ${response.statusCode}');
-        return Post(
-          id: '',
-          caption: '',
-          userId: '',
-          images: [],
-          createdAt: DateTime.now(),
-        );
+        return Post.empty();
       }
     } catch (e) {
       print('Error: $e');
-      return Post(
-        id: '',
-        caption: '',
-        userId: '',
-        images: [],
-        createdAt: DateTime.now(),
+      return Post.empty();
+    }
+  }
+
+  Future<bool> likePost(String postId) async {
+    String token = Global.user!.token;
+    try {
+      final response = await http.post(
+        Uri.parse('$urlBase/posts/like/$postId'),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
       );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 }
