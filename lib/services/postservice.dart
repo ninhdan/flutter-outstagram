@@ -104,7 +104,36 @@ class PostService {
     }
   }
   StreamController<List<Post>> _postStreamController = StreamController<List<Post>>();
-  Future<List<Post>> getAllPostsOfUserMe() async {
+  // Future<List<Post>> getAllPostsOfUserMe() async {
+  //   List<Post> posts = [];
+  //   String token = Global.user!.token;
+  //   try {
+  //     final response = await http.get(
+  //       Uri.parse('$urlBase/posts/me'),
+  //       headers: <String, String>{
+  //         'Authorization': 'Bearer $token',
+  //         'Content-Type': 'application/json; charset=UTF-8',
+  //       },
+  //     );
+  //
+  //     if (response.statusCode == 200) {
+  //       final jsonData = jsonDecode(response.body)['data'];
+  //       for (var item in jsonData) {
+  //         posts.add(Post.fromJson(item));
+  //       }
+  //       return posts;
+  //     } else {
+  //       print('Failed to load posts: ${response.statusCode}');
+  //       return [];
+  //     }
+  //   } catch (e) {
+  //     print('Error: $e');
+  //     print('Failed to load posts check 2: $e');
+  //     return [];
+  //   }
+  // }
+
+  Stream<List<Post>> getAllPostsOfUserMe() async* {
     List<Post> posts = [];
     String token = Global.user!.token;
     try {
@@ -121,17 +150,19 @@ class PostService {
         for (var item in jsonData) {
           posts.add(Post.fromJson(item));
         }
-        return posts;
+        _postStreamController.add(posts);
       } else {
         print('Failed to load posts: ${response.statusCode}');
-        return [];
+        _postStreamController.addError('Failed to load posts: ${response.statusCode}');
       }
     } catch (e) {
       print('Error: $e');
       print('Failed to load posts check 2: $e');
-      return [];
+      _postStreamController.addError('Error: $e');
     }
+    yield* _postStreamController.stream;
   }
+
 
   Future<Post> getPostById(String postId) async {
     String token = Global.user!.token;

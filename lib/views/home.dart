@@ -115,13 +115,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Stream<List<Post>>? _postStream;
+  late Stream<List<Post>> _postStream;
   final PostService _postService = PostService();
 
   @override
   void initState() {
     super.initState();
-    _postStream = _postService.getAllPostsOfUserMe() as Stream<List<Post>>;
+    _postStream = _postService.getAllPostsOfUserMe();
   }
 
   @override
@@ -171,7 +171,6 @@ class _HomeScreenState extends State<HomeScreen> {
             builder:
                 (BuildContext context, AsyncSnapshot<List<Post>> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                print("Loading posts...");
                 return const SliverFillRemaining(
                     child: Center(child: CircularProgressIndicator()));
               } else if (snapshot.hasError) {
@@ -184,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         (BuildContext context, int index) {
                       return PostWidget(post: snapshot.data![index]);
                     },
-                    childCount: snapshot.data!.length,
+                    childCount: snapshot.data == null ? 0 : snapshot.data!.length,
                   ),
                 );
               }

@@ -22,18 +22,21 @@ class PostWidget extends StatefulWidget {
 class _PostWidgetState extends State<PostWidget> {
   @override
   bool isAnimating = false;
-  bool isPostLiked = false;
+  late bool isPostLiked;
   String username = '';
   String avatar = '';
   final _controller = PageController();
   bool showFullCaption = false;
-
+  late int countPost;
 
   @override
   void initState() {
     super.initState();
     username = Global.user?.username ?? '';
     avatar = Global.user?.avatar ?? '';
+    isPostLiked = widget.post.likes.any((like) => like.isLiked);
+
+    countPost = widget.post.likes.where((like) => like.isLiked).length;
   }
 
   String formatTime(DateTime? time) {
@@ -95,20 +98,20 @@ class _PostWidgetState extends State<PostWidget> {
         ),
         GestureDetector(
           onDoubleTap: () async {
-            setState(() {
-              isAnimating = true;
-            });
-
-            isPostLiked = widget.post.likes.any((like) => like.isLiked);
-            if(!isPostLiked){
+            if (!isPostLiked) {
               final success = await PostService().likePost(widget.post.id);
               if (success) {
-                print('CheckisAnimating1: ${isAnimating}');
                 setState(() {
+                  isPostLiked = !isPostLiked;
                   isAnimating = true;
-                  isPostLiked = true;
+                  countPost++;
                 });
               }
+            } else {
+              setState(() {
+                isPostLiked = true;
+                isAnimating = true;
+              });
             }
           },
           child: Stack(
@@ -143,7 +146,6 @@ class _PostWidgetState extends State<PostWidget> {
                   End: () {
                     setState(() {
                       isAnimating = false;
-                      print('CheckisAnimating2: ${isAnimating}');
                     });
                   },
                   child: Icon(FontAwesomeIcons.solidHeart,
@@ -163,32 +165,21 @@ class _PostWidgetState extends State<PostWidget> {
               children: [
                 SizedBox(width: 14.w),
                 LikeAnimation(
-                  isAnimating:  isAnimating,
+                  isAnimating: isPostLiked,
                   child: IconButton(
                     onPressed: () async {
-
+                      await PostService().likePost(widget.post.id);
                       setState(() {
-                        isAnimating = true;
+                        isPostLiked = !isPostLiked;
+                        countPost = isPostLiked ? countPost + 1 : countPost - 1;
                       });
-
-
-                      // final success =
-                      //     await PostService().likePost(widget.post.id);
-                      // if (success) {
-                      //   print('CheckisAnimating3: ${isAnimating}');
-                      //   setState(() {
-                      //     isAnimating = true;
-                      //   });
-                      // }
                     },
                     icon: Icon(
-                      widget.post.likes.any((like) => like.isLiked)
+                      isPostLiked
                           ? FontAwesomeIcons.solidHeart
                           : FontAwesomeIcons.heart,
                       size: 25.w,
-                      color: widget.post.likes.any((like) => like.isLiked)
-                          ? Colors.red
-                          : const Color(0xFF2F2F2F),
+                      color: isPostLiked ? Colors.red : const Color(0xFF2F2F2F),
                     ),
                   ),
                 ),
@@ -221,7 +212,7 @@ class _PostWidgetState extends State<PostWidget> {
             Padding(
               padding: EdgeInsets.only(left: 15.w, top: 10.5.h, bottom: 5.h),
               child: Text(
-                '${widget.post.likes.where((like) => like.isLiked).length} likes',
+                '${countPost} likes',
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
