@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart';
 import 'package:instagram_flutter/models/post.dart';
@@ -21,6 +22,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late List<Post> posts = [];
   late bool isCurrentUser = false;
+  late bool isRoleAdmin = false;
+  late bool isActive = false;
 
   int countPost = 0;
 
@@ -28,6 +31,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     isCurrentUser = Global.user?.id == widget.user.id;
+    isRoleAdmin = Global.user?.role == true;
+    isActive = Global.user?.active == true;
     fetchPosts();
   }
 
@@ -51,16 +56,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: Colors.white,
             title: Row(
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(right: 10.0),
-                  child: Icon(
+                 Padding(
+                  padding: EdgeInsets.only(right: 12.0),
+                  child: isActive
+                      ? Icon(
                     Icons.lock_outline,
+                    color: Colors.black,
+                    size: 20,
+                  )
+                      : FaIcon( // Sử dụng FaIcon khi active là false
+                    FontAwesomeIcons.ban, // Sử dụng biểu tượng lock từ Font Awesome
                     color: Colors.black,
                     size: 20,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 10.0),
+                  padding: const EdgeInsets.only(right: 5.0),
                   child: Text(
                     isCurrentUser == true
                         ? widget.user.username
@@ -69,6 +80,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Colors.black,
                       fontWeight: FontWeight.w600,
                       fontSize: 24,
+                    ),
+                  ),
+                ),
+                Visibility(
+                  visible: isRoleAdmin,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 5.0, left: 0),
+                    child: SvgPicture.asset(
+                      "assets/icons/verified.svg",
+                      width: 20,
+                      height: 20,
                     ),
                   ),
                 ),

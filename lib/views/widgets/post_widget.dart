@@ -7,13 +7,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instagram_flutter/models/post.dart';
+import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/services/postservice.dart';
 import 'package:instagram_flutter/utils/global.dart';
 import 'package:instagram_flutter/utils/image_cached.dart';
 import 'package:instagram_flutter/views/post_edit_screen.dart';
 import 'package:instagram_flutter/views/post_screen.dart';
+import 'package:instagram_flutter/views/profile_screen.dart';
 import 'package:instagram_flutter/views/widgets/comment.dart';
 import 'package:instagram_flutter/views/widgets/like_animation.dart';
+import 'package:instagram_flutter/views/widgets/navigation.dart';
 import 'package:path/path.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:video_player/video_player.dart';
@@ -36,6 +39,8 @@ class _PostWidgetState extends State<PostWidget> {
   final _controller = PageController();
   bool showFullCaption = false;
   late int countPost;
+  late bool isRoleAdmin = false;
+  late User user;
 
   late Stream<List<Post>> _postStream;
 
@@ -48,6 +53,11 @@ class _PostWidgetState extends State<PostWidget> {
     isPostLiked = widget.post.likes.any((like) => like.isLiked);
 
     countPost = widget.post.likes.where((like) => like.isLiked).length;
+
+    isRoleAdmin = Global.user?.role == true;
+
+    user = Global.user ?? User.empty();
+
   }
 
   String formatTime(DateTime? time) {
@@ -82,27 +92,58 @@ class _PostWidgetState extends State<PostWidget> {
           color: Colors.white,
           child: Center(
               child: ListTile(
-                  leading: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.grey.shade500,
-                        width: 1.5,
+                  leading: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ProfileScreen(user: user),
+                      ));
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.grey.shade500,
+                          width: 1.5,
+                        ),
                       ),
-                    ),
-                    child: CircleAvatar(
-                      radius: 15, // Adjust the radius as needed
-                      backgroundImage: NetworkImage(
-                        avatar.isEmpty
-                            ? 'https://instagram.fixc1-9.fna.fbcdn.net/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=instagram.fixc1-9.fna.fbcdn.net&_nc_cat=1&_nc_ohc=TokSSzUDPVcQ7kNvgGMF0u_&edm=AJ9x6zYBAAAA&ccb=7-5&ig_cache_key=YW5vbnltb3VzX3Byb2ZpbGVfcGlj.2-ccb7-5&oh=00_AYCetGx_2KnUphpAbrzv_kkxLPaX07mcXeJxPNOXkBSYIg&oe=6648F00F&_nc_sid=65462d'
-                            : avatar,
+                      child: CircleAvatar(
+                        radius: 15, // Adjust the radius as needed
+                        backgroundImage: NetworkImage(
+                          avatar.isEmpty
+                              ? 'https://instagram.fixc1-9.fna.fbcdn.net/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=instagram.fixc1-9.fna.fbcdn.net&_nc_cat=1&_nc_ohc=TokSSzUDPVcQ7kNvgGMF0u_&edm=AJ9x6zYBAAAA&ccb=7-5&ig_cache_key=YW5vbnltb3VzX3Byb2ZpbGVfcGlj.2-ccb7-5&oh=00_AYCetGx_2KnUphpAbrzv_kkxLPaX07mcXeJxPNOXkBSYIg&oe=6648F00F&_nc_sid=65462d'
+                              : avatar,
+                        ),
                       ),
                     ),
                   ),
-                  title: Text(
-                    username,
-                    style:
-                        TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                  title: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ProfileScreen(user: user),
+                      ));
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          username,
+                          style: TextStyle(
+                              fontSize: 13.sp, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(width: 5),
+                        Visibility(
+                          visible: isRoleAdmin,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 5.0, left: 0),
+                            child: SvgPicture.asset(
+                              "assets/icons/verified.svg",
+                              width: 18,
+                              height: 18,
+                            ),
+                          ),
+                        ),
+
+                      ],
+                    ),
                   ),
                   trailing: GestureDetector(
                     onTap: () {
@@ -118,6 +159,7 @@ class _PostWidgetState extends State<PostWidget> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                if(user.id == widget.post.userId)
                                 ListTile(
                                   leading: SvgPicture.asset(
                                     'assets/images/Arch.svg',
@@ -132,6 +174,7 @@ class _PostWidgetState extends State<PostWidget> {
                                           fontWeight: FontWeight.w500)),
                                   onTap: () {},
                                 ),
+                                if(user.id == widget.post.userId)
                                 ListTile(
                                   leading: Image.asset(
                                     'assets/images/no-chatting.png',
@@ -146,6 +189,7 @@ class _PostWidgetState extends State<PostWidget> {
                                           fontWeight: FontWeight.w500)),
                                   onTap: () {},
                                 ),
+                                if(user.id == widget.post.userId)
                                 ListTile(
                                   leading: Image.asset(
                                     'assets/images/like_hide.png',
@@ -160,6 +204,7 @@ class _PostWidgetState extends State<PostWidget> {
                                           fontWeight: FontWeight.w500)),
                                   onTap: () {},
                                 ),
+                                if(user.id == widget.post.userId)
                                 ListTile(
                                   leading: SvgPicture.asset(
                                     'assets/images/edit.svg',
@@ -197,6 +242,7 @@ class _PostWidgetState extends State<PostWidget> {
                                           fontWeight: FontWeight.w500)),
                                   onTap: () {},
                                 ),
+                                if(user.role || user.id == widget.post.userId)
                                 ListTile(
                                   leading: SvgPicture.asset(
                                     'assets/images/trash.svg', // Path to your SVG file
@@ -217,6 +263,29 @@ class _PostWidgetState extends State<PostWidget> {
                                         });
                                   },
                                 ),
+
+                                if(user.id != widget.post.userId && !user.role)
+                                  ListTile(
+                                    leading: SvgPicture.asset(
+                                      'assets/images/trash.svg', // Path to your SVG file
+                                      width: 26, // Adjust size as needed
+                                      height: 26,
+                                      color: Colors.red, // Adjust color as needed
+                                    ),
+                                    title: Text('Report',
+                                        style: TextStyle(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.w500)),
+                                    onTap: () {
+                                      //Navigator.pop(context);
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return dialogDelete(context);
+                                          });
+                                    },
+                                  ),
+
                               ],
                             ),
                           );

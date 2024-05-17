@@ -29,17 +29,41 @@ Widget profileHeaderWidget(BuildContext context, User user, int countPosts) {
                     width: 3.5, // Adjust the width to your preference
                   ),
                 ),
-                child: CircleAvatar(
-                  radius: 38, // Adjust the radius to fit within the border
-                  backgroundColor: const Color(0xff74EDED),
-                  backgroundImage: NetworkImage(
-                    user.avatar.isEmpty
-                        ? 'https://instagram.fixc1-9.fna.fbcdn.net/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=instagram.fixc1-9.fna.fbcdn.net&_nc_cat=1&_nc_ohc=TokSSzUDPVcQ7kNvgGMF0u_&edm=AJ9x6zYBAAAA&ccb=7-5&ig_cache_key=YW5vbnltb3VzX3Byb2ZpbGVfcGlj.2-ccb7-5&oh=00_AYCetGx_2KnUphpAbrzv_kkxLPaX07mcXeJxPNOXkBSYIg&oe=6648F00F&_nc_sid=65462d'
-                        : user.avatar,
-                  ),
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 38, // Adjust the radius to fit within the border
+                      backgroundColor: const Color(0xff74EDED),
+                      backgroundImage: NetworkImage(
+                        user.avatar.isEmpty
+                            ? 'https://instagram.fixc1-9.fna.fbcdn.net/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=instagram.fixc1-9.fna.fbcdn.net&_nc_cat=1&_nc_ohc=TokSSzUDPVcQ7kNvgGMF0u_&edm=AJ9x6zYBAAAA&ccb=7-5&ig_cache_key=YW5vbnltb3VzX3Byb2ZpbGVfcGlj.2-ccb7-5&oh=00_AYCetGx_2KnUphpAbrzv_kkxLPaX07mcXeJxPNOXkBSYIg&oe=6648F00F&_nc_sid=65462d'
+                            : user.avatar,
+                      ),
+                    ),
+                    if (!user.active) // Only show X if the account is not active
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          width: 30, // Điều chỉnh kích thước của khung chứa
+                          height: 30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.red, // Màu của X
+                          ),
+                          child: Center( // Để biểu tượng X vào giữa
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 18, // Điều chỉnh kích thước của biểu tượng X
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-               Row(
+              Row(
                 children: [
                   Column(
                     children: [
@@ -201,9 +225,7 @@ Widget actions(BuildContext context) {
           ),
           onPressed: () {
             Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => EditProfileScreen()
-              ),
+              MaterialPageRoute(builder: (context) => EditProfileScreen()),
             );
           },
           child: const Padding(

@@ -25,8 +25,8 @@ class Slide extends StatelessWidget {
             ),
             accountEmail: Text(
               user.email,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
+              style: const TextStyle(
+                  fontWeight: FontWeight.w400, color: Colors.black),
             ),
             currentAccountPicture:
                 Image.asset("assets/images/instagramlogosplash.png"),
@@ -99,20 +99,76 @@ class Slide extends StatelessWidget {
                 },
               );
             },
-            child: const ListTile(
-              leading: Icon(
-                FontAwesomeIcons.signOutAlt,
-                size: 25,
-                color: Color(0xFF0C92127),
-              ),
-              title: Text(
-                'Logout',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                  color: Color(0xFF0C92127),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(
+                    FontAwesomeIcons.signOutAlt,
+                    size: 25,
+                    color: Color(0xFF0C92127),
+                  ),
+                  title: Text(
+                    'Logout',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 18,
+                      color: Color(0xFF0C92127),
+                    ),
+                  ),
                 ),
-              ),
+                if (user.role)
+                  ListTile(
+                    leading: Icon(
+                      FontAwesomeIcons.lock,
+                      size: 25,
+                      color: user.active ? Colors.red : Colors.grey,
+                    ),
+                    title: user.active
+                        ? Text(
+                            'Deactivate Account',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          )
+                        : Text(
+                            'Activate Account',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                    onTap: () {
+                      if (user.active) {
+
+                      } else {
+
+                      }
+                    },
+                  ),
+
+                if(user.role)
+                  ListTile(
+                    leading: Icon(
+                      FontAwesomeIcons.trash,
+                      size: 25,
+                      color: Colors.red, // Màu đỏ cho biểu tượng xóa tài khoản
+                    ),
+                    title: Text(
+                      'Delete Account',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                        color: Colors.red, // Màu đỏ cho tiêu đề
+                      ),
+                    ),
+                    onTap: () {
+                      // Xử lý khi người dùng nhấn vào tùy chọn xóa tài khoản
+                    },
+                  ),
+              ],
             ),
           ),
         ],
