@@ -130,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: SizedBox(
           width: 110.w,
           height: 44.h,

@@ -1,8 +1,8 @@
-class CommentPost {
+class CommentCreate {
   late final String postId;
   late final String content;
 
-  CommentPost({
+  CommentCreate({
     required this.postId,
     required this.content,
   });

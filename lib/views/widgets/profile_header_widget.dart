@@ -205,7 +205,7 @@ Widget actions(BuildContext context) {
               "Edit Profile",
               style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600),
             ),
           ),
@@ -230,7 +230,7 @@ Widget actions(BuildContext context) {
               "Share Profile",
               style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600),
             ),
           ),

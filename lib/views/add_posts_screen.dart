@@ -87,11 +87,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
           children: [
             GestureDetector(
               onTap: () {
-                // Navigator.of(context).pushAndRemoveUntil(
-                //   MaterialPageRoute(
-                //       builder: (context) => const Navigations_Screen()),
-                //   (route) => false,
-                // );
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Navigations_Screen()),
+                  (route) => false,
+                );
               },
               child: const Icon(Icons.close, color: Colors.black, size: 30),
             ),
@@ -161,9 +162,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal:
-                              15.w),
+                      padding: EdgeInsets.symmetric(horizontal: 15.w),
                       child: Text(
                         'Recents',
                         style: TextStyle(
@@ -177,21 +176,16 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         toggleSelectionMode();
                       },
                       child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal:
-                                15.w),
+                        padding: EdgeInsets.symmetric(horizontal: 15.w),
                         child: Container(
                           decoration: BoxDecoration(
                             color: isMultipleSelection
                                 ? Colors.blueAccent
-                                : const Color(
-                                    0xFF666666),
-                            borderRadius: BorderRadius.circular(
-                                20.0),
+                                : const Color(0xFF666666),
+                            borderRadius: BorderRadius.circular(20.0),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(
-                                8.0),
+                            padding: const EdgeInsets.all(8.0),
                             child: Icon(
                               Icons.filter_none,
                               size: 13.sp,
@@ -224,7 +218,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               onTap: () {
                                 setState(() {
                                   indexx = index;
-                                  _file = path[index];;
+                                  _file = path[index];
+                                  ;
                                   if (selectedIndex != -1) {
                                     selectedFiles.remove(path[selectedIndex]);
                                   }
@@ -410,10 +405,9 @@ class _VideoWidgetState extends State<VideoWidget>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Khoảng cách giữa biểu tượng và thời lượng
                         Text(
                           videoDuration,
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Colors.white, fontWeight: FontWeight.w500),
                         ),
                       ],

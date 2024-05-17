@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instagram_flutter/models/post.dart';
 import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/views/post_screen.dart';
+import 'package:video_player/video_player.dart';
 
 class Gallery extends StatefulWidget {
   final List<Post> posts;
@@ -32,6 +35,7 @@ class _GalleryState extends State<Gallery> {
         builder: (context) {
           String imageUrl = post.images.first.url;
           String postId = post.id;
+          bool isVideo = imageUrl.endsWith('.mp4');
           return GestureDetector(
             onTap: () {
               Navigator.push(
@@ -39,14 +43,19 @@ class _GalleryState extends State<Gallery> {
                 MaterialPageRoute(
                   builder: (context) => PostScreen(postId: postId),
                 ),
-              );
+              ).then((value) {
+                setState(() {});
+              });
+              ///// check --
             },
             onLongPress: () {
               _popupDialog = _createPopupDialog(imageUrl);
               Overlay.of(context).insert(_popupDialog);
             },
             onLongPressEnd: (details) => _popupDialog?.remove(),
-            child: Image.network(imageUrl, fit: BoxFit.cover),
+            child: isVideo
+                ? VideoWidget(imageUrl)
+                : Image.network(imageUrl, fit: BoxFit.cover),
           );
         },
       );
@@ -90,7 +99,7 @@ class _GalleryState extends State<Gallery> {
   Widget _createActionBar() => Container(
         padding: const EdgeInsets.symmetric(vertical: 10.0),
         color: Colors.white,
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Icon(
@@ -122,16 +131,18 @@ class _GalleryState extends State<Gallery> {
             children: [
               _createPhotoTitle(),
               AspectRatio(
-                aspectRatio: 1.0, // Maintains the aspect ratio of 1:1
-                child: CachedNetworkImage(
-                  imageUrl: url,
-                  fit: BoxFit
-                      .cover, // Ensures the image covers the area without changing its aspect ratio
-                  placeholder: (context, url) => const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                ),
+                aspectRatio: 1.0,
+                child: url.endsWith('.mp4')
+                    ? VideoPopWidget(url)
+                    : CachedNetworkImage(
+                        imageUrl: url,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
               ),
               _createActionBar(),
             ],
@@ -182,6 +193,94 @@ class AnimatedDialogState extends State<AnimatedDialog>
             child: widget.child,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class VideoWidget extends StatefulWidget {
+  final String url;
+
+  VideoWidget(this.url);
+
+  @override
+  _VideoWidgetState createState() => _VideoWidgetState();
+}
+
+class _VideoWidgetState extends State<VideoWidget> {
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.url != null) {
+      _controller = VideoPlayerController.network(widget.url)
+        ..initialize().then((_) {
+          setState(() {});
+        });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 10 / 10,
+      child: Stack(
+        children: [
+          if (_controller != null && _controller.value.isInitialized)
+            VideoPlayer(_controller),
+        ],
+      ),
+    );
+  }
+}
+
+class VideoPopWidget extends StatefulWidget {
+  final String url;
+
+  VideoPopWidget(this.url);
+
+  @override
+  _VideoPopWidgetState createState() => _VideoPopWidgetState();
+}
+
+class _VideoPopWidgetState extends State<VideoPopWidget> {
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.url != null) {
+      _controller = VideoPlayerController.network(widget.url)
+        ..initialize().then((_) {
+          setState(() {});
+        });
+      _controller.setLooping(true);
+      _controller.play();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 10 / 10,
+      child: Stack(
+        children: [
+          if (_controller != null && _controller.value.isInitialized)
+            VideoPlayer(_controller),
+        ],
       ),
     );
   }

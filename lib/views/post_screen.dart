@@ -60,20 +60,20 @@ class _PostScreenState extends State<PostScreen> {
                 } else {
                   final posts = snapshot.data!;
 
-                  // Loại bỏ bài viết đã chọn khỏi danh sách các bài viết còn lại
-                  final otherPosts = posts.where((post) => post.id != selectedPost.id).toList();
+                  final otherPosts = posts
+                      .where((post) => post.id != selectedPost.id)
+                      .toList();
 
                   return CustomScrollView(
                     slivers: [
                       SliverList(
                         delegate: SliverChildListDelegate([
-                          PostWidget(post: selectedPost), // Display selected post
-                          // Add any spacing or divider widgets here if needed
+                          PostWidget(post: selectedPost),
                         ]),
                       ),
                       SliverList(
                         delegate: SliverChildBuilderDelegate(
-                              (BuildContext context, int index) {
+                          (BuildContext context, int index) {
                             return PostWidget(post: otherPosts[index]);
                           },
                           childCount: otherPosts.length,

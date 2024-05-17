@@ -1,4 +1,4 @@
-import 'package:instagram_flutter/models/images_post.dart';
+import 'package:instagram_flutter/models/image_post.dart';
 import 'package:instagram_flutter/models/like_post.dart';
 
 class Post {

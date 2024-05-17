@@ -37,7 +37,6 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
     }
     for (var file in widget.files) {
       post.files.add(file.path);
-      print(file);
     }
     setState(() {
       islooding = true;
@@ -142,7 +141,7 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
 
   Widget Caption(TextEditingController controller) {
     if (widget.files == null || widget.files.isEmpty) {
-      return Container(); // hoặc một widget khác để hiển thị khi không có files
+      return Container();
     }
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
@@ -160,7 +159,7 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
                   return Stack(
                     children: [
                       VideoWidget(file),
-                      Positioned(
+                      const Positioned(
                         bottom: 0,
                         right: 0,
                         child: Icon(
@@ -185,7 +184,7 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
                           ),
                         ),
                       ),
-                      Positioned(
+                      const Positioned(
                         bottom: 0,
                         right: 0,
                         child: Icon(
