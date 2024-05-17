@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/utils/highlight.dart';
+import 'package:instagram_flutter/views/edit_profile_screen.dart';
 
 Widget profileHeaderWidget(BuildContext context, User user, int countPosts) {
   return Container(
@@ -198,7 +199,13 @@ Widget actions(BuildContext context) {
             ),
             side: BorderSide.none,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => EditProfileScreen()
+              ),
+            );
+          },
           child: const Padding(
             padding: EdgeInsets.symmetric(horizontal: 30),
             child: Text(

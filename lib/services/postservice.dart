@@ -290,29 +290,6 @@ class PostService {
     }
   }
 
-  // Future<CommentPost> getCommentByPostId(String postId) async {
-  //   String token = Global.user!.token;
-  //   try {
-  //     final response = await http.get(
-  //       Uri.parse('$urlBase/posts/comment/$postId'),
-  //       headers: <String, String>{
-  //         'Authorization': 'Bearer $token',
-  //         'Content-Type': 'application/json; charset=UTF-8',
-  //       },
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       final jsonData = jsonDecode(response.body)['data'];
-  //       return CommentPost.fromJson(jsonData);
-  //     } else {
-  //       print('Failed to load post: ${response.statusCode}');
-  //       return CommentPost.empty();
-  //     }
-  //   } catch (e) {
-  //     print('Error: $e');
-  //     return CommentPost.empty();
-  //   }
-  // }
 
   Stream<List<CommentPost>> getCommentByPostId(String postId) async* {
     String token = Global.user!.token;

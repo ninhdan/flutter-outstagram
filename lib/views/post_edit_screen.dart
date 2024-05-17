@@ -31,10 +31,9 @@ class _PostEditScreenState extends State<PostEditScreen> {
   }
 
   void handleSavePostEdit() async {
-    // Prepare the post edit object
     PostEdit postEdit = PostEdit(
       postId: widget.postId,
-      caption: _editedCaption, // Updated caption
+      caption: _editedCaption,
     );
     bool result = await PostService().editPost(postEdit);
     if (result) {

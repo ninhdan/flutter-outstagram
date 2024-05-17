@@ -9,7 +9,7 @@ import 'package:video_player/video_player.dart';
 
 class PostEditWidget extends StatefulWidget {
   final Post post;
-  final Function(String) onUpdateCaption; // Callback function
+  final Function(String) onUpdateCaption;
   const PostEditWidget({required this.post, required this.onUpdateCaption, super.key});
 
   @override

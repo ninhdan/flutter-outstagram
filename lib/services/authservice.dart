@@ -1,11 +1,15 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:instagram_flutter/models/response/user_response.dart';
 import 'package:instagram_flutter/models/user.dart';
+import 'package:instagram_flutter/models/user_edit.dart';
 import 'package:instagram_flutter/models/user_login.dart';
 import 'package:instagram_flutter/models/user_register.dart';
 import 'package:instagram_flutter/utils/const.dart';
+import 'package:instagram_flutter/utils/global.dart';
+import 'package:mime/mime.dart';
 import '../models/response/responsedata.dart';
 
 class AuthService {
@@ -115,5 +119,6 @@ class AuthService {
     }
     return result;
   }
+
 
 }
